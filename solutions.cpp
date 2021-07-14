@@ -27,8 +27,39 @@ int firstDuplicate(std::vector<int> a) {
 	}
 }
 
+/*Given a string s consisting of small English letters, find and return the first instance of a non-repeating character in it. If there is no such character, return '_'.
+
+Example
+
+For s = "abacabad", the output should be
+firstNotRepeatingCharacter(s) = 'c'.
+
+There are 2 non-repeating characters in the string: 'c' and 'd'. Return c since it appears in the string first.
+
+For s = "abacabaabacaba", the output should be
+firstNotRepeatingCharacter(s) = '_'.
+
+There are no characters in this string that do not repeat.*/
+char firstNotRepeatingCharacter(std::string s) {
+	std::unordered_map<char, int> map;
+	for (char ch : s) {
+		if (map.find(ch) == map.end()) {
+			map.insert({ ch, 0});
+		}
+		else {
+			map[ch]++;
+		}
+	}
+	for (char ch : s) {
+		if (map[ch] < 1)
+			return ch;
+	}
+	return '_';
+}
+
+
 int main()
 {
-
+	std::cout << firstNotRepeatingCharacter("abacabad") << std::endl;
 	return 0;
 }
