@@ -57,9 +57,51 @@ char firstNotRepeatingCharacter(std::string s) {
 	return '_';
 }
 
+/*Note: Try to solve this task in-place (with O(1) additional memory), since this is what you'll be asked to do during an interview.
+
+You are given an n x n 2D matrix that represents an image. Rotate the image by 90 degrees (clockwise).
+
+Example
+
+For
+
+a = [[1, 2, 3],
+     [4, 5, 6],
+     [7, 8, 9]]
+the output should be
+
+rotateImage(a) =
+    [[7, 4, 1],
+     [8, 5, 2],
+     [9, 6, 3]]*/
+std::vector<std::vector<int>> rotateImage(std::vector<std::vector<int>> a) {
+	std::vector<std::vector<int>> rotIm(a.front().size(), std::vector<int>(a.size()));
+	int x, y;
+	x = a.size() - 1;
+	for (size_t i = 0; i < a.size(); i++) {
+		y = 0;
+		for (size_t j = 0; j < a.front().size(); j++) {
+			rotIm[y][x] = a[i][j];
+			y++;
+		}
+		x--;
+	}
+	return rotIm;
+}
 
 int main()
 {
-	std::cout << firstNotRepeatingCharacter("abacabad") << std::endl;
+	std::vector<std::vector<int>> a{ 
+		{1, 2, 3},
+		{4, 5, 6},
+		{7, 8, 9 }, };
+	std::vector<std::vector<int>> b = rotateImage(a);
+	for (size_t i = 0; i < b.size(); i++) {
+		for (size_t j = 0; j < a.front().size(); j++) {
+			std::cout << b[i][j] << " ";
+		}
+		std::cout << std::endl;
+	}
+	//std::cout << firstNotRepeatingCharacter("abacabad") << std::endl;
 	return 0;
 }
