@@ -22,8 +22,8 @@ int firstDuplicate(std::vector<int> a) {
 	for (auto x : a) {
 		if (map.find(x) != map.end())
 			return x;
-		else 
-			map.insert( { x, 0 });
+		else
+			map.insert({ x, 0 });
 	}
 }
 
@@ -44,7 +44,7 @@ char firstNotRepeatingCharacter(std::string s) {
 	std::unordered_map<char, int> map;
 	for (char ch : s) {
 		if (map.find(ch) == map.end()) {
-			map.insert({ ch, 0});
+			map.insert({ ch, 0 });
 		}
 		else {
 			map[ch]++;
@@ -66,14 +66,14 @@ Example
 For
 
 a = [[1, 2, 3],
-     [4, 5, 6],
-     [7, 8, 9]]
+	 [4, 5, 6],
+	 [7, 8, 9]]
 the output should be
 
 rotateImage(a) =
-    [[7, 4, 1],
-     [8, 5, 2],
-     [9, 6, 3]]*/
+	[[7, 4, 1],
+	 [8, 5, 2],
+	 [9, 6, 3]]*/
 std::vector<std::vector<int>> rotateImage(std::vector<std::vector<int>> a) {
 	std::vector<std::vector<int>> rotIm(a.front().size(), std::vector<int>(a.size()));
 	size_t x, y;
@@ -96,14 +96,14 @@ Example
 
 For
 grid = [['.', '.', '.', '1', '4', '.', '.', '2', '.'],
-        ['.', '.', '6', '.', '.', '.', '.', '.', '.'],
-        ['.', '.', '.', '.', '.', '.', '.', '.', '.'],
-        ['.', '.', '1', '.', '.', '.', '.', '.', '.'],
-        ['.', '6', '7', '.', '.', '.', '.', '.', '9'],
-        ['.', '.', '.', '.', '.', '.', '8', '1', '.'],
-        ['.', '3', '.', '.', '.', '.', '.', '.', '6'],
-        ['.', '.', '.', '.', '.', '7', '.', '.', '.'],
-        ['.', '.', '.', '5', '.', '.', '.', '7', '.']]
+		['.', '.', '6', '.', '.', '.', '.', '.', '.'],
+		['.', '.', '.', '.', '.', '.', '.', '.', '.'],
+		['.', '.', '1', '.', '.', '.', '.', '.', '.'],
+		['.', '6', '7', '.', '.', '.', '.', '.', '9'],
+		['.', '.', '.', '.', '.', '.', '8', '1', '.'],
+		['.', '3', '.', '.', '.', '.', '.', '.', '6'],
+		['.', '.', '.', '.', '.', '7', '.', '.', '.'],
+		['.', '.', '.', '5', '.', '.', '.', '7', '.']]
 the output should be
 sudoku2(grid) = true;
 
@@ -157,7 +157,7 @@ bool sudoku2(std::vector<std::vector<char>> grid) {
 						return false;
 				}
 			}
-		}		
+		}
 		for (size_t j = 0; j < 9; j++) {
 			char chY = grid[j][i];
 			if (chY != '.') {
@@ -178,7 +178,7 @@ bool sudoku2(std::vector<std::vector<char>> grid) {
 bool isCryptSolution(std::vector<std::string> crypt, std::vector<std::vector<char>> solution) {
 	std::unordered_map<char, char> map;
 	for (auto item : solution) {
-		map.insert({item.front(), item.back()});
+		map.insert({ item.front(), item.back() });
 	}
 	int diff = '0';
 	int dgts[3];
@@ -187,7 +187,7 @@ bool isCryptSolution(std::vector<std::string> crypt, std::vector<std::vector<cha
 	for (auto str : crypt) {
 		*(dgts + counterDgt) = 0;
 		for (char ch : str) {
-			*(dgts + counterDgt)*= 10;
+			*(dgts + counterDgt) *= 10;
 			*(dgts + counterDgt) += map[ch] - diff;
 			if (*(dgts + counterDgt) == 0 && str.size() > 1)
 				return false;
@@ -195,55 +195,110 @@ bool isCryptSolution(std::vector<std::string> crypt, std::vector<std::vector<cha
 		counterDgt++;
 	}
 	int* p1 = pDgt;
-	int *p2 = pDgt + 1;
-	int *p3 = pDgt + 2;
+	int* p2 = pDgt + 1;
+	int* p3 = pDgt + 2;
 	if (*p1 + *p2 == *p3) {
 		return true;
 	}
 	return false;
 }
 
+template<typename T>
+struct ListNode {
+	ListNode(const T& v) : value(v), next(nullptr) {}
+	void push_back(const T& v) {
+		ListNode<T>* current = this;
+		while (current->next != nullptr) {
+			current = current->next;
+		}
+		current->next = new ListNode(v);
+	}
+	void print() {
+		ListNode<int>* current = this;
+		while (current->next != nullptr) {
+			current = current->next;
+			std::cout << current->value << " ";
+		}
+	}
+	T value;
+	ListNode* next;
+};
+
+
+
+ListNode<int>* removeKFromList(ListNode<int>* l, int k) {
+	while (l != nullptr ) {
+		if (l->value == k)
+			l = l->next;
+		else
+			break;
+		if (l == nullptr)
+			return l;
+
+	}
+	ListNode<int>* head = l;
+
+	while (l != nullptr && l->next != nullptr) {
+		if (l->next->value == k) {
+			l->next = l->next->next;
+		} else
+			l = l->next;
+	}
+	return head;
+}
 
 int main()
 {
-	//std::vector<std::vector<char>> solution = { {'O', '0'},
-	//	{'M', '1'},
-	//	{'Y', '2'},
-	//	{'E', '5'},
-	//	{'N', '6'},
-	//	{'D', '7'},
-	//	{'R', '8'},
-	//	{'S', '9'} };
-	//std::vector<std::string> crypt = { "SEND", "MORE", "MONEY" };
-	std::vector<std::vector<char>> solution = { {'A', '0'},};
-	std::vector<std::string> crypt = { "A", "A", "A" };
-	std::cout << isCryptSolution(crypt, solution) << std::endl;
-	//std::vector<std::vector<char>> arr{
- //{'.','.','4'	,'.','.','.'	,'6','3','.'},
- //{'.','.','.'	,'.','.','.'	,'.','.','.'},
- //{'5','.','.'	,'.','.','.'	,'.','9','.'},
- //
- //{'.','.','.'	,'5','6','.'	,'.','.','.'},
- //{'4','.','3'	,'.','.','.'	,'.','.','1'},
- //{'.','.','.'	,'7','.','.'	,'.','.','.'},
- //
- //{'.','.','.'	,'5','.','.'	,'.','.','.'},
- //{'.','.','.'	,'.','.','.'	,'.','.','.'},
- //{'.','.','.'	,'.','.','.'	,'.','.','.'} 
-	//};
-	//std::cout << sudoku2(arr);
-	//std::vector<std::vector<int>> a{ 
-	//	{1, 2, 3},
-	//	{4, 5, 6},
-	//	{7, 8, 9 }, };
-	//std::vector<std::vector<int>> b = rotateImage(a);
-	//for (size_t i = 0; i < b.size(); i++) {
-	//	for (size_t j = 0; j < a.front().size(); j++) {
-	//		std::cout << b[i][j] << " ";
-	//	}
-	//	std::cout << std::endl;
-	//}
+
+	ListNode<int>* list = new ListNode<int>(3);
+	list->push_back(1);
+	list->push_back(2);
+	list->push_back(3);
+	list->push_back(4);
+	list->push_back(5);
+
+	removeKFromList(list, 3);
+	list->print();
+
+	////std::vector<std::vector<char>> solution = { {'O', '0'},
+	////	{'M', '1'},
+	////	{'Y', '2'},
+	////	{'E', '5'},
+	////	{'N', '6'},
+	////	{'D', '7'},
+	////	{'R', '8'},
+	////	{'S', '9'} };
+	////std::vector<std::string> crypt = { "SEND", "MORE", "MONEY" };
+	//std::vector<std::vector<char>> solution = { {'A', '0'}, };
+	//std::vector<std::string> crypt = { "A", "A", "A" };
+	//std::cout << isCryptSolution(crypt, solution) << std::endl;
+	////std::vector<std::vector<char>> arr{
+ ////{'.','.','4'	,'.','.','.'	,'6','3','.'},
+ ////{'.','.','.'	,'.','.','.'	,'.','.','.'},
+ ////{'5','.','.'	,'.','.','.'	,'.','9','.'},
+ ////
+ ////{'.','.','.'	,'5','6','.'	,'.','.','.'},
+ ////{'4','.','3'	,'.','.','.'	,'.','.','1'},
+ ////{'.','.','.'	,'7','.','.'	,'.','.','.'},
+ ////
+ ////{'.','.','.'	,'5','.','.'	,'.','.','.'},
+ ////{'.','.','.'	,'.','.','.'	,'.','.','.'},
+ ////{'.','.','.'	,'.','.','.'	,'.','.','.'} 
+	////};
+	////std::cout << sudoku2(arr);
+	////std::vector<std::vector<int>> a{ 
+	////	{1, 2, 3},
+	////	{4, 5, 6},
+	////	{7, 8, 9 }, };
+	////std::vector<std::vector<int>> b = rotateImage(a);
+	////for (size_t i = 0; i < b.size(); i++) {
+	////	for (size_t j = 0; j < a.front().size(); j++) {
+	////		std::cout << b[i][j] << " ";
+	////	}
+	////	std::cout << std::endl;
+	////}
 
 	//std::cout << firstNotRepeatingCharacter("abacabad") << std::endl;
 	return 0;
 }
+
