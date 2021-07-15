@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <vector>
 #include <iostream>
+#include <stack>
 #include <unordered_map>
 
 /*Given an array a that contains only numbers in the range from 1 to a.length, find the first duplicate number for which the second occurrence has the minimal index. In other words, if there are more than 1 duplicated numbers, return the number for which the second occurrence has a smaller index than the second occurrence of the other number does. If there are no such elements, return -1.
@@ -227,7 +228,7 @@ struct ListNode {
 
 
 ListNode<int>* removeKFromList(ListNode<int>* l, int k) {
-	while (l != nullptr ) {
+	while (l != nullptr) {
 		if (l->value == k)
 			l = l->next;
 		else
@@ -241,24 +242,201 @@ ListNode<int>* removeKFromList(ListNode<int>* l, int k) {
 	while (l != nullptr && l->next != nullptr) {
 		if (l->next->value == k) {
 			l->next = l->next->next;
-		} else
+		}
+		else
 			l = l->next;
 	}
 	return head;
 }
 
+/*Note: Try to solve this task in O(n) time using O(1) additional space, where n is the number of elements in l, since this is what you'll be asked to do during an interview.
+Given a singly linked list of integers, determine whether or not it's a palindrome.
+Note: in examples below and tests preview linked lists are presented as arrays just for simplicity of visualization: in real data you will be given a head node l of the linked list
+Example
+
+For l = [0, 1, 0], the output should be
+isListPalindrome(l) = true;
+
+For l = [1, 2, 2, 3], the output should be
+isListPalindrome(l) = false.
+
+Input/Output
+
+[execution time limit] 0.5 seconds (cpp)
+
+[input] linkedlist.integer l
+
+A singly linked list of integers.
+
+Guaranteed constraints:
+0 ≤ list size ≤ 5 · 105,
+-109 ≤ element value ≤ 109.
+
+[output] boolean
+
+Return true if l is a palindrome, otherwise return false.*/
+//bool isListPalindrome(ListNode<int>* l) {	// 3 2 1 2 3
+//	std::vector<int> left, right;
+//	size_t size = 0;
+//	if (l == nullptr) {
+//		return true;
+//	}
+//	bool checkV1 = false;
+//	bool checkV2 = false;
+//	std::vector<int>::iterator iLeft;
+//	size_t index_r = 0;
+//	while (l != nullptr) {
+//		size++;
+//		int cur = l->value;
+//		if (!checkV1 && !checkV2) {
+//			if (left.size() < 2) {
+//				if (!left.empty() && left.front() == cur) {
+//					checkV1 = true;
+//					iLeft = left.end() - 1;
+//					right.clear();
+//					right.push_back(cur);
+//				}
+//				else
+//					left.push_back(cur);
+//			}
+//			else {
+//				if (cur != left.back() && cur != left[left.size() - 2] ) {
+//					left.push_back(cur);
+//				}
+//				else {
+//					if (cur == left.back()) {
+//						checkV1 = true;
+//						iLeft = left.end() - 1;
+//						index_r = left.size() - 1;
+//					}
+//					else if (cur == left[left.size() - 2]) {
+//						checkV2 = true;
+//						iLeft = left.end() - 2;
+//						index_r = left.size() - 2;
+//					}
+//					right.clear();
+//					right.push_back(cur);
+//				}
+//			}
+//		}
+//		else {
+//			index_r--;
+//			if (iLeft != left.begin()) {
+//				iLeft--;
+//				if (*iLeft == cur) {
+//					right.push_back(cur);
+//				}
+//				else {
+//					std::copy(left.begin(), left.end(), std::back_inserter(right));
+//					checkV1 = false;
+//					checkV2 = false;
+//				}
+//			}
+//			else {
+//				std::copy(right.begin(), right.end(), std::back_inserter(left));
+//				left.push_back(cur);
+//				checkV1 = false;
+//				checkV2 = false;
+//			}
+//
+//		}
+//
+//		l = l->next;
+//	}
+//	if (size == 1)
+//		return true;
+//	if (checkV1 ) {
+//		if (left.size() == 2) {
+//			return true;
+//		}
+//		else if(0 == index_r) {
+//			return true;
+//		}
+//	}
+//	else if (checkV2 ) {
+//		if (left.size() == 2) {
+//			return left.front() == right.front();
+//
+//		}
+//		else if (0 == index_r) {
+//			return true;
+//		}
+//	}
+//	return false;
+//}
+
+//bool isListPalindrome(ListNode<int>* l) {
+//	if (l == nullptr)
+//		return false;
+//	if (l->next == nullptr)
+//		return true;
+//	if (l->next->next == nullptr)
+//	{
+//
+//	}
+//	else {
+//		ListNode<int>* head = new ListNode(l->value);
+//		ListNode<int>* prev = nullptr;
+//		bool check = false;
+//		while (l->next->next != nullptr) {
+//			ListNode<int>* tmp = new ListNode(l->next->value);
+//			tmp->next = head;
+//			head = tmp;
+//
+//			if (check) {
+//				if (prev == nullptr)
+//					prev = head;
+//				if (l->value != prev->value)
+//					return false;
+//			}
+//			if (l->next->value == head->next->value) {
+//				prev = head;
+//				check = true;
+//			}
+//			if (prev != nullptr)
+//				prev = prev->next;
+//			l = l->next;
+//		}
+//	}
+//
+//}
+
+
+bool isListPalindrome(ListNode<int> *l) {
+	bool isPoly = true;
+	ListNode<int> *firstLinkedList = l;
+	std::stack<int> *slist = new std::stack<int>();
+	while (firstLinkedList != nullptr) {
+		slist->push(firstLinkedList->value);
+		firstLinkedList = firstLinkedList->next;
+	}
+	while (l != nullptr) {
+		int value = slist->top();
+		slist->pop();
+		if (value == l->value) {
+			isPoly = true;
+		}
+		else {
+			isPoly = false;
+			break;
+		}
+		l = l->next;
+	}
+	return isPoly;
+}
+
 int main()
 {
 
-	ListNode<int>* list = new ListNode<int>(3);
-	list->push_back(1);
+	ListNode<int>* list = new ListNode<int>(1);
 	list->push_back(2);
 	list->push_back(3);
-	list->push_back(4);
-	list->push_back(5);
-
-	removeKFromList(list, 3);
-	list->print();
+	list->push_back(3);
+	list->push_back(1);
+	//list->push_back(1);
+	std::cout << isListPalindrome(list);
+	//removeKFromList(list, 3);
+	//list->print();
 
 	////std::vector<std::vector<char>> solution = { {'O', '0'},
 	////	{'M', '1'},
