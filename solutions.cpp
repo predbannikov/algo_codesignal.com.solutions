@@ -579,11 +579,57 @@ ListNode<int>* mergeTwoLinkedLists(ListNode<int>* l1, ListNode<int>* l2) {
 //	}
 //}
 
+ListNode<int>* reverseNodesInKGroups(ListNode<int>* l, int k) {
+	if (l != nullptr) {
+		if (l->next == nullptr)
+			return l;
+		ListNode<int>* cur, * head, * triadBegin, * triadEnd, * tmp, * tail;
+		triadEnd = cur = nullptr;
+		size_t counter = 0;
+		while (l != nullptr) {
+			if (counter == k) {
+				if (cur == nullptr) {
+					head = triadBegin;
+				}
+				else {
+					cur->next = triadBegin;
+				}
+				cur = triadEnd;
+				triadEnd = nullptr;
+				counter = 0;
+			}
+			else {
+				if (triadEnd == nullptr) {
+					tail = l;
+					triadEnd = new ListNode<int>(l->value);
+					triadBegin = triadEnd;
+				}
+				else {
+					tmp = triadBegin;
+					triadBegin = new ListNode<int>(l->value);
+					triadBegin->next = tmp;
+				}
+				l = l->next;
+				counter++;
+
+			}
+		}
+		if (counter == k) {
+			cur->next = triadBegin;
+		} else if (counter != 0) {
+			cur->next = tail;
+		}
+		return head;
+	}
+	return l;
+}
+
+
 int main()
 {
 	ListNode<int>* list = nullptr;
 	ListNode<int>* list2 = nullptr;
-	std::vector<int> a{ 1, 1, 2, 4 };
+	std::vector<int> a{ 1, 2, 3, 4 };
 	std::vector<int> b{ 0, 3, 5 };
 	for (int i = 0; i < a.size(); i++) {
 		if (list == nullptr)
@@ -604,7 +650,7 @@ int main()
 	//ListNode<int>* list2 = new ListNode<int>(2309);
 	////list2->push_back(8001);
 	////list->push_back(1);
-	ListNode<int>* list3 = mergeTwoLinkedLists(list, list2);
+	ListNode<int>* list3 = reverseNodesInKGroups(list, 2);
 
 	while (list3 != nullptr) {
 		std::cout << list3->value << " ";
