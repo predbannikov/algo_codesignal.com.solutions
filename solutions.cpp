@@ -402,10 +402,10 @@ Return true if l is a palindrome, otherwise return false.*/
 //}
 
 
-bool isListPalindrome(ListNode<int> *l) {
+bool isListPalindrome(ListNode<int>* l) {
 	bool isPoly = true;
-	ListNode<int> *firstLinkedList = l;
-	std::stack<int> *slist = new std::stack<int>();
+	ListNode<int>* firstLinkedList = l;
+	std::stack<int>* slist = new std::stack<int>();
 	while (firstLinkedList != nullptr) {
 		slist->push(firstLinkedList->value);
 		firstLinkedList = firstLinkedList->next;
@@ -425,16 +425,192 @@ bool isListPalindrome(ListNode<int> *l) {
 	return isPoly;
 }
 
+ListNode<int>* addTwoHugeNumbers(ListNode<int>* a, ListNode<int>* b) {
+	std::vector<int> ptr_a;
+	std::vector<int> ptr_b;
+	int n_a = 0;
+	int n_b = 0;
+	while (a != nullptr || b != nullptr) {
+		if (a != nullptr) {
+			ptr_a.resize(n_a + 1);
+			ptr_a[n_a] = a->value;
+			a = a->next;
+			n_a++;
+		}
+		if (b != nullptr) {
+			ptr_b.resize(n_b + 1);
+			ptr_b[n_b] = b->value;
+			b = b->next;
+			n_b++;
+		}
+	}
+	ListNode<int>* list = nullptr;
+	int over = 0;
+	int c = 0;
+	while (n_a > 0 || n_b > 0) {
+		int r_a, r_b;
+		r_a = r_b = 0;
+		c = over;
+		if (n_a > 0) {
+			r_a = ptr_a[n_a - 1];
+			c += r_a;
+			n_a--;
+		}
+		if (n_b > 0) {
+			r_b = ptr_b[n_b - 1];
+			c += r_b;
+			n_b--;
+		}
+		over = c / 10000;
+		c -= over * 10000;
+		if (list == nullptr) {
+			list = new ListNode<int>(c);
+		}
+		else {
+			ListNode<int>* tmp = new ListNode<int>(c);
+			tmp->next = list;
+			list = tmp;
+		}
+	}
+	if (over > 0) {
+		ListNode<int>* tmp = new ListNode<int>(over);
+		tmp->next = list;
+		list = tmp;
+	}
+
+	//int& a1 = a->value;
+	//int& a2 = a->next->value;
+	//int& a3 = a->next->next->value;
+	//int& b1 = b->value;
+	//int& b2 = b->next->value;
+	//int& b3 = b->next->next->value;
+	//int c3 = b3 + a3;
+	//int c2 = b2 + a2;
+	//int c1 = b1 + a1;
+	//int over = c3 % 1000;
+	//c2 += over;
+	//over %= c2;
+	//c1 += over;
+	//ListNode<int>* list = new ListNode<int>(c1);
+	//list->next = new ListNode<int>(c2);
+	//list->next->next = new ListNode<int>(c3);
+	return list;
+}
+
+ListNode<int>* mergeTwoLinkedLists(ListNode<int>* l1, ListNode<int>* l2) {
+	if (l1 == nullptr) {
+		l1 = l2;
+		return l1;
+	}
+	else if (l2 == nullptr) {
+		return l1;
+	}
+	else {
+		ListNode<int>* cur = nullptr;
+		ListNode<int>* head;
+
+		if (l1->value < l2->value) {
+			head = new ListNode<int>( l1->value);
+			ListNode<int>* tmp = new ListNode<int>(0);
+			tmp->next = l2;
+			l2 = tmp;
+		}
+		else {
+			head = new ListNode<int>( l2->value);
+			ListNode<int>* tmp = new ListNode<int>(0);
+			tmp->next = l1;
+			l1 = tmp;
+		}
+		cur = head;
+		while (l1->next != nullptr && l2->next != nullptr) {
+			if (l1->next->value < l2->next->value) {
+				cur->next = new ListNode<int>(l1->next->value);;
+				l1 = l1->next;
+			}
+			else {
+				cur->next = new ListNode<int>(l2->next->value);;
+				l2 = l2->next;
+			}
+			cur = cur->next;
+		}
+		if (l1->next != nullptr)
+			cur->next = l1->next;
+		if (l2->next != nullptr)
+			cur->next = l2->next;
+		return head;
+	}
+}
+//ListNode<int>* mergeTwoLinkedLists(ListNode<int>* l1, ListNode<int>* l2) {
+//	if (l1 == nullptr) {
+//		l1 = l2;
+//		return l1;
+//	}
+//	else if (l2 == nullptr) {
+//		return l1;
+//	}
+//	else {
+//		ListNode<int>* cur = nullptr;
+//		ListNode<int>* list, *head;
+//
+//		if (l1->value < l2->value) {
+//			list = new ListNode<int>( l1->value);
+//		}
+//		else {
+//			list = new ListNode<int>(l2->value);
+//		}
+//		head = list;
+//		while (l1->next != nullptr && l2->next != nullptr) {
+//			if (l1->next->value < l2->next->value) {
+//				cur = l1;
+//				l1 = l1->next;
+//			}
+//			else {
+//				cur = l2;
+//				l2 = l2->next;
+//			}
+//			list->next = new ListNode<int>(cur->value);
+//			list = list->next;
+//		}
+//		if (l1->next != nullptr)
+//			list->next = l1;
+//		if (l2->next != nullptr)
+//			list->next = l2;
+//		return head;
+//	}
+//}
+
 int main()
 {
+	ListNode<int>* list = nullptr;
+	ListNode<int>* list2 = nullptr;
+	std::vector<int> a{ 1, 1, 2, 4 };
+	std::vector<int> b{ 0, 3, 5 };
+	for (int i = 0; i < a.size(); i++) {
+		if (list == nullptr)
+			list = new ListNode<int>(a[i]);
+		else
+			list->push_back(a[i]);
+	}
+	for (int i = 0; i < b.size(); i++) {
+		if (list2 == nullptr)
+			list2 = new ListNode<int>(b[i]);
+		else
+			list2->push_back(b[i]);
+	}
 
-	ListNode<int>* list = new ListNode<int>(1);
-	list->push_back(2);
-	list->push_back(3);
-	list->push_back(3);
-	list->push_back(1);
-	//list->push_back(1);
-	std::cout << isListPalindrome(list);
+	//ListNode<int>* list = new ListNode<int>(8339);
+	//list->push_back(4510);
+	////list->push_back(1999);
+	//ListNode<int>* list2 = new ListNode<int>(2309);
+	////list2->push_back(8001);
+	////list->push_back(1);
+	ListNode<int>* list3 = mergeTwoLinkedLists(list, list2);
+
+	while (list3 != nullptr) {
+		std::cout << list3->value << " ";
+		list3 = list3->next;
+	}
+
 	//removeKFromList(list, 3);
 	//list->print();
 
