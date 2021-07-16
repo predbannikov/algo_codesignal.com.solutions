@@ -477,23 +477,6 @@ ListNode<int>* addTwoHugeNumbers(ListNode<int>* a, ListNode<int>* b) {
 		tmp->next = list;
 		list = tmp;
 	}
-
-	//int& a1 = a->value;
-	//int& a2 = a->next->value;
-	//int& a3 = a->next->next->value;
-	//int& b1 = b->value;
-	//int& b2 = b->next->value;
-	//int& b3 = b->next->next->value;
-	//int c3 = b3 + a3;
-	//int c2 = b2 + a2;
-	//int c1 = b1 + a1;
-	//int over = c3 % 1000;
-	//c2 += over;
-	//over %= c2;
-	//c1 += over;
-	//ListNode<int>* list = new ListNode<int>(c1);
-	//list->next = new ListNode<int>(c2);
-	//list->next->next = new ListNode<int>(c3);
 	return list;
 }
 
@@ -510,13 +493,13 @@ ListNode<int>* mergeTwoLinkedLists(ListNode<int>* l1, ListNode<int>* l2) {
 		ListNode<int>* head;
 
 		if (l1->value < l2->value) {
-			head = new ListNode<int>( l1->value);
+			head = new ListNode<int>(l1->value);
 			ListNode<int>* tmp = new ListNode<int>(0);
 			tmp->next = l2;
 			l2 = tmp;
 		}
 		else {
-			head = new ListNode<int>( l2->value);
+			head = new ListNode<int>(l2->value);
 			ListNode<int>* tmp = new ListNode<int>(0);
 			tmp->next = l1;
 			l1 = tmp;
@@ -616,7 +599,8 @@ ListNode<int>* reverseNodesInKGroups(ListNode<int>* l, int k) {
 		}
 		if (counter == k) {
 			cur->next = triadBegin;
-		} else if (counter != 0) {
+		}
+		else if (counter != 0) {
 			cur->next = tail;
 		}
 		return head;
@@ -624,33 +608,71 @@ ListNode<int>* reverseNodesInKGroups(ListNode<int>* l, int k) {
 	return l;
 }
 
+ListNode<int>* rearrangeLastN(ListNode<int>* l, int n) {
+	if (n == 0)
+		return l;
+	if (l != nullptr) {
+		if (l->next != nullptr) {
+			if (l->next->next != nullptr) {
+				ListNode<int>* cur, * rootPart, * tmp, * seek, * head;
+				head = l;
+				rootPart = new ListNode<int>(l->value);
+				cur = rootPart;
+				int counterSeek = n;
+				int counter = 0;
+				seek = l;
+				while (l->next != nullptr) {
+					counterSeek--;
+					if (counterSeek < 0)
+						seek = seek->next;
+
+
+					cur->next = new ListNode<int>(l->next->value); // двигаемся вперёд
+					cur = cur->next;
+					l = l->next;
+
+
+					if (counter >= n - 1) {
+						tmp = rootPart;
+						rootPart = rootPart->next;
+						delete tmp;
+					}
+					else
+						counter++;
+
+				}
+				if (seek != head) {
+					seek->next = nullptr;
+					cur->next = head;
+				}
+				return rootPart;
+
+			}
+			else {
+				ListNode<int>* tmp = l;
+				l = l->next;
+				l->next = tmp;
+				l->next->next = nullptr;
+			}
+		}
+	}
+	return l;
+}
 
 int main()
 {
-	ListNode<int>* list = nullptr;
-	ListNode<int>* list2 = nullptr;
-	std::vector<int> a{ 1, 2, 3, 4 };
+	ListNode<int>* list = nullptr, * list2 = nullptr;
+	std::vector<int> a{ 2, 1 };
 	std::vector<int> b{ 0, 3, 5 };
 	for (int i = 0; i < a.size(); i++) {
-		if (list == nullptr)
-			list = new ListNode<int>(a[i]);
-		else
-			list->push_back(a[i]);
+		if (list == nullptr) list = new ListNode<int>(a[i]);
+		else list->push_back(a[i]);
 	}
 	for (int i = 0; i < b.size(); i++) {
-		if (list2 == nullptr)
-			list2 = new ListNode<int>(b[i]);
-		else
-			list2->push_back(b[i]);
+		if (list2 == nullptr) list2 = new ListNode<int>(b[i]);
+		else list2->push_back(b[i]);
 	}
-
-	//ListNode<int>* list = new ListNode<int>(8339);
-	//list->push_back(4510);
-	////list->push_back(1999);
-	//ListNode<int>* list2 = new ListNode<int>(2309);
-	////list2->push_back(8001);
-	////list->push_back(1);
-	ListNode<int>* list3 = reverseNodesInKGroups(list, 2);
+	ListNode<int>* list3 = rearrangeLastN(list, 1);
 
 	while (list3 != nullptr) {
 		std::cout << list3->value << " ";
