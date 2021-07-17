@@ -25,12 +25,58 @@ std::vector<std::vector<std::string>> groupingDishes(std::vector<std::vector<std
 	return tmp;
 }
 
+bool areFollowingPatterns(std::vector<std::string> strings, std::vector<std::string> patterns) {
+	bool check = true;
+	std::unordered_map<std::string, std::string> mapStr, mapPat;
+	std::string lastStr = strings[0];
+	std::string lastPat = patterns[0];
+	mapStr[lastStr] = lastPat;
+	mapPat[lastPat] = lastStr;
 
+	for (size_t i = 1; i < strings.size(); i++) {
+		bool state1 = lastStr == strings[i];
+		bool state2 = lastPat == patterns[i];
+		bool state3 = true;
+		if (mapStr.find(strings[i]) != mapStr.end())
+			state3 = mapStr.find(strings[i])->second == patterns[i];
+		bool state4 = true;
+		if (mapPat.find(patterns[i]) != mapPat.end())
+			state4 = mapPat.find(patterns[i])->second == strings[i];
+
+		if (state1 != state2)
+			check = false;
+		if (state3 != state4)
+			check = false;
+		lastStr = strings[i];
+		lastPat = patterns[i];
+		mapStr[lastStr] = lastPat;
+		mapPat[lastPat] = lastStr;
+	}
+	//bool state3 = true;
+	//if (mapStr.find(lastStr) != mapStr.end())
+	//	state3 = mapStr.find(lastStr)->second == lastPat;
+	//bool state4 = true;
+	//if (mapPat.find(lastPat) != mapPat.end())
+	//	state4 = mapPat.find(lastPat)->second == lastStr;
+	//if (state3 != state4)
+	//	check = false;
+
+	return check;
+}
 
 
 int main()
 {
-
+	std::cout << areFollowingPatterns({
+	"cat",
+ "dog",
+ "dog"
+		},
+		{
+"a",
+ "b",
+ "b"
+		}) << std::endl;
 
 
 	//std::vector<std::vector<std::string>> ret = groupingDishes({
@@ -46,7 +92,7 @@ int main()
 	//	std::cout << std::endl;
 	//}
 
-	testArcade();
+	//testArcade();
 	//linkedlistImpl();
 	return 0;
 }
