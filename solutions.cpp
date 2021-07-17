@@ -4,7 +4,7 @@
 #include "solutions.h"
 #include "arrays.h"
 #include "linkedlist.h"
-
+#include "arcade.h"
 
 std::vector<std::vector<std::string>> groupingDishes(std::vector<std::vector<std::string>> dishes) {
 	std::vector<std::vector<std::string>> tmp;
@@ -25,24 +25,29 @@ std::vector<std::vector<std::string>> groupingDishes(std::vector<std::vector<std
 	return tmp;
 }
 
+
+
+
 int main()
 {
-	std::vector<std::vector<std::string>> ret = groupingDishes({
-		{"Salad", "Tomato", "Cucumber", "Salad", "Sauce"} ,
-			{"Pizza", "Tomato", "Sausage", "Sauce", "Dough"},
-			{"Quesadilla", "Chicken", "Cheese", "Sauce"},
-			{"Sandwich", "Salad", "Bread", "Tomato", "Cheese"} 
-		});
-	for (size_t i = 0; i < ret.size(); i++) {
-		for (size_t j = 0; j < ret[i].size(); j++) {
-			std::cout << ret[i][j] << " ";
-		}
-		std::cout << std::endl;
-	}
 
 
 
-	linkedlistImpl();
+	//std::vector<std::vector<std::string>> ret = groupingDishes({
+	//	{"Salad", "Tomato", "Cucumber", "Salad", "Sauce"} ,
+	//		{"Pizza", "Tomato", "Sausage", "Sauce", "Dough"},
+	//		{"Quesadilla", "Chicken", "Cheese", "Sauce"},
+	//		{"Sandwich", "Salad", "Bread", "Tomato", "Cheese"} 
+	//	});
+	//for (size_t i = 0; i < ret.size(); i++) {
+	//	for (size_t j = 0; j < ret[i].size(); j++) {
+	//		std::cout << ret[i][j] << " ";
+	//	}
+	//	std::cout << std::endl;
+	//}
+
+	testArcade();
+	//linkedlistImpl();
 	return 0;
 }
 

@@ -11,6 +11,8 @@
 #include <map>
 
 void linkedlistImpl();
+void testArcade();
+
 
 
 // TODO: Reference additional headers your program requires here.
