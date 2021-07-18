@@ -52,48 +52,69 @@ bool areFollowingPatterns(std::vector<std::string> strings, std::vector<std::str
 		mapStr[lastStr] = lastPat;
 		mapPat[lastPat] = lastStr;
 	}
-	//bool state3 = true;
-	//if (mapStr.find(lastStr) != mapStr.end())
-	//	state3 = mapStr.find(lastStr)->second == lastPat;
-	//bool state4 = true;
-	//if (mapPat.find(lastPat) != mapPat.end())
-	//	state4 = mapPat.find(lastPat)->second == lastStr;
-	//if (state3 != state4)
-	//	check = false;
-
 	return check;
 }
+
+bool containsCloseNums(std::vector<int> nums, int k) {
+	if (nums.empty() || k == 0)
+		return false;
+
+	std::unordered_map<int, int> map;
+	for (size_t i = 0; i < nums.size() && i <= k; i++) {
+		if (map.find(nums[i]) != map.end())
+			return true;
+		else
+			map[nums[i]];
+	}
+	for (size_t i = 0; i < nums.size(); i++) {
+
+		int cur = nums[i];
+		map.erase(cur);
+
+
+		if (map.find(cur) != map.end()) 
+			return true;
+		if (i + k + 1 < nums.size())
+			if (map.find(nums[i + k + 1]) != map.end())
+				return true;
+			else
+				map[nums[i + k + 1]];
+	}
+	return false;
+}
+
 
 
 int main()
 {
-	std::cout << areFollowingPatterns({
-	"cat",
- "dog",
- "dog"
-		},
-		{
-"a",
- "b",
- "b"
-		}) << std::endl;
+	std::cout << containsCloseNums({ 99, 99 }, 2);
+	//	std::cout << areFollowingPatterns({
+	//	"cat",
+	// "dog",
+	// "dog"
+	//		},
+	//		{
+	//"a",
+	// "b",
+	// "b"
+	//		}) << std::endl;
 
 
-	//std::vector<std::vector<std::string>> ret = groupingDishes({
-	//	{"Salad", "Tomato", "Cucumber", "Salad", "Sauce"} ,
-	//		{"Pizza", "Tomato", "Sausage", "Sauce", "Dough"},
-	//		{"Quesadilla", "Chicken", "Cheese", "Sauce"},
-	//		{"Sandwich", "Salad", "Bread", "Tomato", "Cheese"} 
-	//	});
-	//for (size_t i = 0; i < ret.size(); i++) {
-	//	for (size_t j = 0; j < ret[i].size(); j++) {
-	//		std::cout << ret[i][j] << " ";
-	//	}
-	//	std::cout << std::endl;
-	//}
+		//std::vector<std::vector<std::string>> ret = groupingDishes({
+		//	{"Salad", "Tomato", "Cucumber", "Salad", "Sauce"} ,
+		//		{"Pizza", "Tomato", "Sausage", "Sauce", "Dough"},
+		//		{"Quesadilla", "Chicken", "Cheese", "Sauce"},
+		//		{"Sandwich", "Salad", "Bread", "Tomato", "Cheese"} 
+		//	});
+		//for (size_t i = 0; i < ret.size(); i++) {
+		//	for (size_t j = 0; j < ret[i].size(); j++) {
+		//		std::cout << ret[i][j] << " ";
+		//	}
+		//	std::cout << std::endl;
+		//}
 
-	//testArcade();
-	//linkedlistImpl();
+		//testArcade();
+		//linkedlistImpl();
 	return 0;
 }
 
