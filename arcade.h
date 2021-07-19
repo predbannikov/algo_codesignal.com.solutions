@@ -41,6 +41,24 @@ bool checkPalindrome(std::string inputString) {
 	return false;
 }
 
+int sumPairOfIndex(const std::vector<int>& inputArray, int index) {
+	return inputArray[index] * inputArray[index + 1];
+}
+
+int adjacentElementsProduct(std::vector<int> inputArray) {
+	int max = sumPairOfIndex(inputArray, 0);
+	for (size_t i = 1; i < inputArray.size()-1; i++) {
+		int tmp = sumPairOfIndex(inputArray, i);
+		if ( tmp > max) {
+			max = tmp;
+		}
+	}
+	return max;
+}
+
+
 void testArcade() {
-	std::cout << checkPalindrome("hlbeeykoqqqokyeeblh") << std::endl;
+
+	std::cout << adjacentElementsProduct({ 3, 6, -2, -5, 7, 3 });
+	//std::cout << checkPalindrome("hlbeeykoqqqokyeeblh") << std::endl;
 }

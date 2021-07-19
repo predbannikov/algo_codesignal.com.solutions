@@ -223,7 +223,9 @@ int possibleSums(std::vector<int> coins, std::vector<int> quantity) {
 
 int main()
 {
-	std::cout << possibleSums({ 10, 50, 100 }, { 1, 2, 1 });
+	//std::cout << possibleSums({ 10, 50, 100 }, { 1, 2, 1 });
+
+
 	//std::cout << containsCloseNums({ 99, 99 }, 2);
 	//	std::cout << areFollowingPatterns({
 	//	"cat",
@@ -250,7 +252,7 @@ int main()
 		//	std::cout << std::endl;
 		//}
 
-		//testArcade();
+		testArcade();
 		//linkedlistImpl();
 	return 0;
 }
