@@ -115,13 +115,34 @@ std::unordered_set<int>* possibleSumsSup(std::multiset<int> mset) {
 	}
 	return setResults;
 }
+
+void bt(std::vector <int>& c, std::vector <int>& q, std::unordered_set <int>& sums, int idx, int sum) {
+	static int lvl = 0;
+	lvl++;
+	//std::cout << "in lvl(" << lvl  << ")" << std::endl;
+	if (idx == c.size()) {			// Если дошли максимального количества, то на этом уровне стека 
+		if (sum) sums.insert(sum);		// добавляем в сет сумму и выходим из рекурсии
+		std::cout << "lvl=" << lvl << " sum=" << sum << std::endl;
+		lvl--;
+		//std::cout << "out lvl(" << lvl << ")" << std::endl;
+		return;
+	}
+	for (int i = 0; i <= q[idx]; ++i) {					// Запускаем некоторое количество раз функцию на этом уровне стека, i - определяет сколько раз в наборе будет встречаться элемент
+		std::cout << c[idx] * i << "\t" << "lvl=" << lvl << " bt(c,q,s," << idx << "+1" << "," << sum << "+c[" << idx << "]*" << i << ")" << std::endl;
+		bt(c, q, sums, idx + 1, sum + c[idx] * i);		// С каждым новым запуском прибавляем idx + 1 ( что в один момент даст размер массива монет)
+	}
+	lvl--;
+	//std::cout << "out lvl(" << lvl << std::endl;
+}
+
 // pIn - входной массив
 // N - размер входного массива
 // K - количество элементов в размещении
 
-void PermutationWithRepetition(const char* pIn, int N, int K)
+void PermutationWithRepetition(const int* pIn, int N, int K)
 {
-	char* pOut = new char[K + 1]; // строка из K символов плюс 1 символ для терминального 0
+	//std::unordered_set<std::unordered_set<int>> set;
+	int* pOut = new int[K + 1]; // строка из K символов плюс 1 символ для терминального 0
 	pOut[K] = 0;                  // помещаем 0 в конец строки
 	K--;
 	int* stack = new int[K * 2],  // стек псевдорекурсии, глубина рекурсии K - 1
@@ -134,8 +155,16 @@ void PermutationWithRepetition(const char* pIn, int N, int K)
 		while (n < N)
 		{
 			pOut[k] = pIn[n++];
-			if (k == K)
-				printf("%02d. %s\n", ++j, pOut);
+			if (k == K) {
+				printf("%02d. ", ++j);
+				std::unordered_set<int> tmp_set;
+				for (int i = 0; i < N; i++) {
+					printf("%d ", *(pOut + i));
+					tmp_set.insert(*(pOut + i));
+				}
+				//set.insert(tmp_set);
+				printf("\n");
+			}
 			else
 			{
 				if (n < N)
@@ -157,74 +186,175 @@ void PermutationWithRepetition(const char* pIn, int N, int K)
 	delete[] stack;
 }
 
-void algoNarajanj(std::vector<int>& v) {
+bool algoNarajanj(std::vector<int>& v) {
 	std::vector<int>::iterator it = v.end();
 	std::vector<int>::iterator i = v.end();
 	while (true) {
 		i--;
-		if (it == v.end() && i != v.end()-1 && *i < *(i + 1)) {
+		if (it == v.end() && i != v.end() - 1 && *i < *(i + 1)) {
 			it = i;
-			i = v.end()-1;
+			i = v.end() - 1;
 		}
 		if (it != v.end() && *it < *i) {
 			std::swap(*it, *i);
 			it++;
 			std::reverse(it, v.end());
-			return;
+			return false;
 		}
 		if (i == v.begin())
-			return;
+			return true;
 	}
-	return;
+	return false;
 }
 
-int fact(int n) {
+uint64_t fact(uint64_t n) {
 	if (n < 1)
 		return 1;
 	else
 		return fact(n - 1) * n;
 }
-int possibleSums(std::vector<int> coins, std::vector<int> quantity) {
-	std::multiset<int> mset;
-	for (size_t i = 0; i < coins.size(); i++) {
-		for (size_t j = 0; j < quantity[i]; j++) {
-			mset.insert(coins[i]);
+
+void sm(std::vector<int>& c, std::vector<int>& q, std::unordered_set<int>& s, int ix, int sum) {
+	if (ix == c.size()) {
+		s.insert(sum);
+		return;
+	}
+	else {
+		for (int i = 0; i <= q[i]; i++) {
+			sm(c, q, s, i + 1, sum + c[ix] * i);
 		}
 	}
-	for (int i = 0; i < fact(coins.size()); i++) {
-		std::copy(coins.begin(), coins.end(), std::ostream_iterator<int>(std::cout << std::endl, "\t"));
-		algoNarajanj(coins);
+}
 
+void test(std::unordered_set<int>& set, std::vector<int>& a) {
+	if (a.empty()) {
+		return;
 	}
-	std::vector<int> coins2{ 10, 50, 50, 100 };
+	std::vector<int> tmp(a.size() - 1);
+	if (tmp.empty())
+		return;
 
-	do {
-		//for (int i = 0; i < n; ++i) {
-		//	if (v[i]) {
-		//		std::cout << (i + 1) << " ";
-		//	}
-		//}
-		std::copy(coins2.begin(), coins2.end(), std::ostream_iterator<int>(std::cout << std::endl, " "));
-	} while (std::next_permutation(coins2.begin(), coins2.end()));
+	for (size_t i = 0; i < a.size(); i++) {
+		int index_tmp = 0;
+		for (size_t j = 0; j < a.size(); j++)
+			if (j != i)
+				tmp[index_tmp++] = a[j];
+		//std::copy(tmp.begin(), tmp.end(), std::ostream_iterator<int>(std::cout << std::endl, " "));
+		int sum = 0;
+		for (int i = 0; i < tmp.size(); i++) {
+			sum += tmp[i];
+		}
 
-	PermutationWithRepetition("abcd", 4, 4);
+		set.insert(sum);
+		test(set, tmp);
+	}
+}
 
-	std::multiset<int>::iterator it = mset.begin();
+void ttt() {
+	uint8_t x = 0b01011000;
+	x = x&(x + 1);
 
+	std::bitset<8> b(x);
+	std::cout << "yes x=" << b << std::endl;
 
-
-
-	std::unordered_set<int>* setResults = new std::unordered_set<int>;
-	setResults->merge(*possibleSumsSup(mset));
-	std::cout << std::endl;
-	return 0;
 }
 
 
+void genSochWithRepeat(std::vector<int>& a) {
+	int n = a.size() , k = n;
+
+	//k = n = 7;
+	uint64_t t1 = fact(n + k - 1);
+	uint64_t t2 = fact(k);
+	uint64_t t3 = fact(n-1);
+	uint64_t t4 = t2 * t3;
+	uint64_t size = 5200300;
+	std::vector<std::vector<int>> res(size, std::vector<int>(k, 0));
+	for (size_t i = 0; i < size; i++) {
+		std::vector<int>::iterator it = res[i].end();
+		i--;
+		if (*it < n - 1) {
+			*it++;
+			int cur = *it;
+			while (it != res[i].end())
+				*it = cur;
+		}
+	}
+}
+
+
+int possibleSums(std::vector<int> coins, std::vector<int> quantity) {
+	//ttt();
+	std::multiset<int> mset;
+	std::unordered_set<int> set;
+	std::vector<int> vSet;
+	//int sum = 0;
+	//for (size_t i = 0; i < coins.size(); i++) {
+	//	for (size_t j = 0; j < quantity[i]; j++) {
+	//		sum += coins[i];
+	//		vSet.push_back(coins[i]);
+	//	}
+	//}
+
+	//genSochWithRepeat(vSet);
+
+	//set.insert(sum);
+	bt(coins, quantity, set, 0, 0);
+	//std::vector<int> tt{ 1, 2, 3, 4 };
+	//std::vector<int>b = coins2;
+
+	for (int i = 0; i < fact(vSet.size()); i++)
+	{
+		std::next_permutation(vSet.begin(), vSet.end());
+	}
+
+	test(set, vSet);
+	return set.size() ;
+
+	//test(coins2, coins2.size());
+	//while (true) {
+	//	std::vector<int> a;
+	//	std::copy(coins2);
+	//}
+	//int size = fact(coins2.size()) ;
+	//for (int i = 0; i < size; i++) {
+	//	std::copy(coins2.begin(), coins2.end(), std::ostream_iterator<int>(std::cout << std::endl, "\t"));
+	//	if (i == 12) {
+	//	}
+	//	if (algoNarajanj(coins2)) {
+	//		std::reverse(coins2.begin(), coins2.end());
+	//		coins2.pop_back();
+	//	}
+	//}
+
+	//do {
+	//	//for (int i = 0; i < n; ++i) {
+	//	//	if (v[i]) {
+	//	//		std::cout << (i + 1) << " ";
+	//	//	}
+	//	//}
+	//	std::copy(coins2.begin(), coins2.end(), std::ostream_iterator<int>(std::cout << std::endl, " "));
+	//} while (std::next_permutation(coins2.begin(), coins2.end()));
+	//const int test[] = { 1,2,3,4 };
+	////PermutationWithRepetition(test, 4, 4);
+
+	////std::multiset<int>::iterator it = mset.begin();
+
+
+
+
+	//std::unordered_set<int>* setResults = new std::unordered_set<int>;
+	//setResults->merge(*possibleSumsSup(mset));
+	//std::cout << std::endl;
+	return 0;
+}
+
 int main()
 {
-	//std::cout << possibleSums({ 10, 50, 100 }, { 1, 2, 1 });
+	std::cout << possibleSums({ 10, 50, 100, 500 }, { 5, 3, 2, 2 });
+	
 
+	std::vector<int> a{ 1, 2, 3, 4 };
 
 	//std::cout << containsCloseNums({ 99, 99 }, 2);
 	//	std::cout << areFollowingPatterns({
@@ -252,7 +382,7 @@ int main()
 		//	std::cout << std::endl;
 		//}
 
-		testArcade();
+		//testArcade();
 		//linkedlistImpl();
 	return 0;
 }
