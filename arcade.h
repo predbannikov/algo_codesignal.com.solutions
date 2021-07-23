@@ -56,9 +56,21 @@ int adjacentElementsProduct(std::vector<int> inputArray) {
 	return max;
 }
 
+int shapeArea(int n) {
+	int sum = 0;
+	for (int i = 1; i < n; i++) {
+		sum += i;
+	}
+	return sum * 4 + 1;
+}
+
+int makeArrayConsecutive2(std::vector<int> statues) {
+	return *std::max_element(statues.begin(), statues.end()) - *std::min_element(statues.begin(), statues.end()) - statues.size() + 1;
+}
+
 
 void testArcade() {
-
-	std::cout << adjacentElementsProduct({ 3, 6, -2, -5, 7, 3 });
+	std::cout << makeArrayConsecutive2({ 6, 2, 3, 8 });
+	//std::cout << adjacentElementsProduct({ 3, 6, -2, -5, 7, 3 });
 	//std::cout << checkPalindrome("hlbeeykoqqqokyeeblh") << std::endl;
 }

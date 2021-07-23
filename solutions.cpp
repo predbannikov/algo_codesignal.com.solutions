@@ -252,7 +252,7 @@ void test(std::unordered_set<int>& set, std::vector<int>& a) {
 
 void ttt() {
 	uint8_t x = 0b01011000;
-	x = x&(x + 1);
+	x = x & (x + 1);
 
 	std::bitset<8> b(x);
 	std::cout << "yes x=" << b << std::endl;
@@ -261,12 +261,12 @@ void ttt() {
 
 
 void genSochWithRepeat(std::vector<int>& a) {
-	int n = a.size() , k = n;
+	int n = a.size(), k = n;
 
 	//k = n = 7;
 	uint64_t t1 = fact(n + k - 1);
 	uint64_t t2 = fact(k);
-	uint64_t t3 = fact(n-1);
+	uint64_t t3 = fact(n - 1);
 	uint64_t t4 = t2 * t3;
 	uint64_t size = 5200300;
 	std::vector<std::vector<int>> res(size, std::vector<int>(k, 0));
@@ -309,7 +309,7 @@ int possibleSums(std::vector<int> coins, std::vector<int> quantity) {
 	}
 
 	test(set, vSet);
-	return set.size() ;
+	return set.size();
 
 	//test(coins2, coins2.size());
 	//while (true) {
@@ -349,10 +349,51 @@ int possibleSums(std::vector<int> coins, std::vector<int> quantity) {
 	return 0;
 }
 
+struct BtNode {
+	BtNode(int value_, BtNode* left_ = nullptr, BtNode* right_ = nullptr) : value(value_), l(left_), r(right_) {}
+	int value;
+	BtNode* l, * r;
+};
+
+void add_node(int value, BtNode*& tree) {
+	if (tree == nullptr)
+		tree = new BtNode(value);
+
+	else if (value < tree->value)
+		if (tree->l != nullptr)
+			add_node(value, tree->l);
+		else
+			tree->l = new BtNode(value);
+	else if (value >= tree->value)
+		if (tree->r != nullptr)
+			add_node(value, tree->r);
+		else
+			tree->r = new BtNode(value);
+
+}
+
+void show(BtNode*& tree) {
+	if (tree != nullptr) {
+		show(tree->l);
+		std::cout << tree->value << std::endl;
+
+		show(tree->r);
+	}
+	else {
+		//std::cout << "endl ";
+	}
+}
+
 int main()
 {
-	std::cout << possibleSums({ 10, 50, 100, 500 }, { 5, 3, 2, 2 });
-	
+	BtNode* tree = nullptr;
+	add_node(3, tree);
+	for (int i = 0; i < 5; i++) {
+		add_node(i, tree);
+	}
+	//show(tree);
+	//std::cout << possibleSums({ 10, 50, 100, 500 }, { 5, 3, 2, 2 });
+
 
 	std::vector<int> a{ 1, 2, 3, 4 };
 
@@ -382,8 +423,8 @@ int main()
 		//	std::cout << std::endl;
 		//}
 
-		//testArcade();
-		//linkedlistImpl();
+	testArcade();
+	//linkedlistImpl();
 	return 0;
 }
 
