@@ -20,18 +20,20 @@ bool checkPalindrome(std::string inputString) {
 				return true;
 			check1 = true;
 			counter1++;
-		} else {
+		}
+		else {
 			if (counter1 > 1)
 				i--;
 			check1 = false;
 			counter1 = 1;
 		}
-		if ((i - (2 * counter2) >= 0 && inputString[i] == inputString[i- (2 * counter2)]) && !check1) {
-			if (check2 && i - (2 * counter2) == 0 && i == inputString.size() - 1) 
+		if ((i - (2 * counter2) >= 0 && inputString[i] == inputString[i - (2 * counter2)]) && !check1) {
+			if (check2 && i - (2 * counter2) == 0 && i == inputString.size() - 1)
 				return true;
 			check2 = true;
 			counter2++;
-		} else {
+		}
+		else {
 			if (counter2 > 1)
 				i--;
 			check2 = false;
@@ -47,9 +49,9 @@ int sumPairOfIndex(const std::vector<int>& inputArray, int index) {
 
 int adjacentElementsProduct(std::vector<int> inputArray) {
 	int max = sumPairOfIndex(inputArray, 0);
-	for (size_t i = 1; i < inputArray.size()-1; i++) {
+	for (size_t i = 1; i < inputArray.size() - 1; i++) {
 		int tmp = sumPairOfIndex(inputArray, i);
-		if ( tmp > max) {
+		if (tmp > max) {
 			max = tmp;
 		}
 	}
@@ -68,9 +70,49 @@ int makeArrayConsecutive2(std::vector<int> statues) {
 	return *std::max_element(statues.begin(), statues.end()) - *std::min_element(statues.begin(), statues.end()) - statues.size() + 1;
 }
 
+bool checkRiseSequence( int a, int b, int c, int d) {
+	
+	return false;
+}
 
+bool almostIncreasingSequence(std::vector<int> sequence) {
+	bool check = true;
+	if (sequence[0] >= sequence[1])
+		check = false;
+	if (sequence.size() <= 2 && !check)
+		return true;
+	if (sequence[1] >= sequence[2])
+		if (check)
+			check = false;
+		else
+			return false;
+	if(sequence.size() > 3)
+		for (int i = 0; i < sequence.size()-2; i++) {
+ 			if (sequence[i+1] >= sequence[i+2]) {
+				if (check) {
+					check = false;
+					if (sequence.size() > i+3 && sequence[i + 1] < sequence[i + 3])
+						continue;
+					if (sequence[i] < sequence[i + 1]) {
+						std::swap(sequence[i], sequence[i + 1]);
+					}
+					//else
+					//	return false;
+				}
+				else {
+					return false;
+				}
+			}
+			if (sequence[i + 1] >= sequence[i + 2])
+				return false;
+		}
+	return true;
+}
+
+ 
 void testArcade() {
-	std::cout << makeArrayConsecutive2({ 6, 2, 3, 8 });
+	std::cout << std::boolalpha << almostIncreasingSequence({ 3, 5, 67, 98, 3 });
+	//std::cout << makeArrayConsecutive2({ 6, 2, 3, 8 });
 	//std::cout << adjacentElementsProduct({ 3, 6, -2, -5, 7, 3 });
 	//std::cout << checkPalindrome("hlbeeykoqqqokyeeblh") << std::endl;
 }
