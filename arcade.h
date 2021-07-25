@@ -70,11 +70,6 @@ int makeArrayConsecutive2(std::vector<int> statues) {
 	return *std::max_element(statues.begin(), statues.end()) - *std::min_element(statues.begin(), statues.end()) - statues.size() + 1;
 }
 
-bool checkRiseSequence( int a, int b, int c, int d) {
-	
-	return false;
-}
-
 bool almostIncreasingSequence(std::vector<int> sequence) {
 	bool check = true;
 	if (sequence[0] >= sequence[1])
@@ -91,14 +86,14 @@ bool almostIncreasingSequence(std::vector<int> sequence) {
  			if (sequence[i+1] >= sequence[i+2]) {
 				if (check) {
 					check = false;
-					if (sequence.size() > i+3 && sequence[i + 1] < sequence[i + 3])
+					if (sequence.size() > i + 3 && sequence[i + 1] < sequence[i + 3])
 						continue;
+					else if (sequence.size() <= i + 3)
+						return true;
 					if (sequence[i] < sequence[i + 1]) {
 						std::swap(sequence[i], sequence[i + 1]);
 					}
-					//else
-					//	return false;
-				}
+ 				}
 				else {
 					return false;
 				}
@@ -109,9 +104,28 @@ bool almostIncreasingSequence(std::vector<int> sequence) {
 	return true;
 }
 
+int matrixElementsSum(std::vector<std::vector<int>> matrix) {
+	int sum = 0;
+	for (size_t i = 0; i < matrix.front().size(); i++) {
+		for (size_t j = 0; j < matrix.size(); j++) {
+			if (matrix[j][i] == 0)
+				break;
+			sum += matrix[j][i];
+		}
+	}
+	return sum;
+}
+
+
  
 void testArcade() {
-	std::cout << std::boolalpha << almostIncreasingSequence({ 3, 5, 67, 98, 3 });
+	std::cout << matrixElementsSum({
+		{4,0,1} ,
+ {10,7,0},
+ {0,0,0},
+ {9,1,2}
+		}) << std::endl;
+	//std::cout << std::boolalpha << almostIncreasingSequence({ 3, 5, 67, 98, 3 });
 	//std::cout << makeArrayConsecutive2({ 6, 2, 3, 8 });
 	//std::cout << adjacentElementsProduct({ 3, 6, -2, -5, 7, 3 });
 	//std::cout << checkPalindrome("hlbeeykoqqqokyeeblh") << std::endl;
