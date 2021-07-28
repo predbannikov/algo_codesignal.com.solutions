@@ -101,7 +101,7 @@ bool almostIncreasingSequence(std::vector<int> sequence) {
 			if (sequence[i + 1] >= sequence[i + 2])
 				return false;
 		}
-	return true;
+	return true; 
 }
 
 int matrixElementsSum(std::vector<std::vector<int>> matrix) {
@@ -116,15 +116,35 @@ int matrixElementsSum(std::vector<std::vector<int>> matrix) {
 	return sum;
 }
 
+std::vector<std::string> allLongestStrings(std::vector<std::string> inputArray) {
+	int max = 0;
+	for (size_t i = 0; i < inputArray.size(); i++) {
+		if (max < inputArray[i].size())
+			max = inputArray[i].size();
+	}
+	std::vector<std::string> strs;
+	for (size_t i = 0; i < inputArray.size(); i++) {
+		if (inputArray[i].size() == max)
+			strs.push_back(inputArray[i]);
+	}
+	return strs;
+}
+
 
  
 void testArcade() {
-	std::cout << matrixElementsSum({
-		{4,0,1} ,
- {10,7,0},
- {0,0,0},
- {9,1,2}
-		}) << std::endl;
+	//std::vector<std::string> strs = allLongestStrings({ "abacaba",
+	// "abacab",
+	// "abac",
+	// "xxxxxx" });
+	//std::copy(strs.begin(), strs.end(), std::ostream_iterator<std::string>(std::cout, " "));
+	
+	//std::cout << matrixElementsSum({
+	//	{4,0,1} ,
+ //{10,7,0},
+ //{0,0,0},
+ //{9,1,2}
+	//	}) << std::endl;
 	//std::cout << std::boolalpha << almostIncreasingSequence({ 3, 5, 67, 98, 3 });
 	//std::cout << makeArrayConsecutive2({ 6, 2, 3, 8 });
 	//std::cout << adjacentElementsProduct({ 3, 6, -2, -5, 7, 3 });

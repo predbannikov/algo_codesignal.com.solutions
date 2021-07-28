@@ -233,18 +233,20 @@ void test(std::unordered_set<int>& set, std::vector<int>& a) {
 	std::vector<int> tmp(a.size() - 1);
 	if (tmp.empty())
 		return;
-
+	if (tmp.size() == 1)
+		return;
 	for (size_t i = 0; i < a.size(); i++) {
 		int index_tmp = 0;
 		for (size_t j = 0; j < a.size(); j++)
-			if (j != i)
+			if (j != i) {
 				tmp[index_tmp++] = a[j];
-		//std::copy(tmp.begin(), tmp.end(), std::ostream_iterator<int>(std::cout << std::endl, " "));
+			}
 		int sum = 0;
 		for (int i = 0; i < tmp.size(); i++) {
 			sum += tmp[i];
 		}
 
+		std::copy(tmp.begin(), tmp.end(), std::ostream_iterator<int>(std::cout << std::endl, " "));
 		set.insert(sum);
 		test(set, tmp);
 	}
@@ -259,27 +261,46 @@ void ttt() {
 
 }
 
-
-void genSochWithRepeat(std::vector<int>& a) {
-	int n = a.size(), k = n;
-
-	//k = n = 7;
-	uint64_t t1 = fact(n + k - 1);
-	uint64_t t2 = fact(k);
-	uint64_t t3 = fact(n - 1);
-	uint64_t t4 = t2 * t3;
-	uint64_t size = 5200300;
-	std::vector<std::vector<int>> res(size, std::vector<int>(k, 0));
-	for (size_t i = 0; i < size; i++) {
-		std::vector<int>::iterator it = res[i].end();
-		i--;
-		if (*it < n - 1) {
-			*it++;
-			int cur = *it;
-			while (it != res[i].end())
-				*it = cur;
+bool NextSet(std::vector<int>& a, int n)
+{
+	int k = a.size();
+	for (int i = k - 1; i >= 0; --i)
+		if (a[i] < n - k + i + 1)
+		{
+			++a[i];
+			for (int j = i + 1; j < k; ++j)
+				a[j] = a[j - 1] + 1;
+			return true;
 		}
+	return false;
+}
+
+void genSochWithRepeat(std::vector<int>& c, std::unordered_set<int>& set, std::vector<int>& a, int m) {
+
+	if (m < 1)
+		return;
+
+	size_t k = fact(a.size()) / (fact(a.size() - m) * fact(m));
+	std::vector<std::vector<int>> res(k, std::vector<int>(m, 0));
+	for (size_t i = 0; i < res.front().size(); i++)
+		res.front()[i] = i;
+
+	for (size_t i = 0; i < k; i++) {
+		if (!NextSet(res[i], res[i].size() - 1)) {
+
+			std::copy(res[i].begin(), res[i].end(), std::ostream_iterator<int>(std::cout << std::endl, "\t"));
+		}
+		if (i + 1 < k)
+			res[i + 1] = res[i];
 	}
+	for (size_t i = 0; i < res.size(); i++) {
+		int sum = 0;
+		for (size_t j = 0; j < res[i].size(); j++) {
+			sum += c[res[i][j]];
+		}
+		set.insert(sum);
+	}
+	genSochWithRepeat(c, set, a, m - 1);
 }
 
 
@@ -288,27 +309,37 @@ int possibleSums(std::vector<int> coins, std::vector<int> quantity) {
 	std::multiset<int> mset;
 	std::unordered_set<int> set;
 	std::vector<int> vSet;
-	//int sum = 0;
-	//for (size_t i = 0; i < coins.size(); i++) {
-	//	for (size_t j = 0; j < quantity[i]; j++) {
-	//		sum += coins[i];
-	//		vSet.push_back(coins[i]);
-	//	}
-	//}
+	std::vector<int> cSet;
+	int sum = 0;
+	for (size_t i = 0; i < coins.size(); i++) {
+		for (size_t j = 0; j < quantity[i]; j++) {
+			//sum += coins[i];
+			cSet.push_back(coins[i]);
+		}
+	}
+	for (size_t i = 0; i < cSet.size(); i++)
+		vSet.push_back(i);
 
-	//genSochWithRepeat(vSet);
+
+	int n = vSet.size();
+	int m = n - 1;
+	size_t k = fact(n) / (fact(n - m) * fact(m));
+
+	genSochWithRepeat(cSet, set, vSet, vSet.size() - 1);
+
+	return set.size();
 
 	//set.insert(sum);
-	bt(coins, quantity, set, 0, 0);
+	//bt(coins, quantity, set, 0, 0);
 	//std::vector<int> tt{ 1, 2, 3, 4 };
 	//std::vector<int>b = coins2;
 
-	for (int i = 0; i < fact(vSet.size()); i++)
-	{
-		std::next_permutation(vSet.begin(), vSet.end());
-	}
+	//for (int i = 0; i < fact(vSet.size()); i++)
+	//{
+	//	std::next_permutation(vSet.begin(), vSet.end());
+	//}
 
-	test(set, vSet);
+	//test(set, vSet);
 	return set.size();
 
 	//test(coins2, coins2.size());
@@ -386,13 +417,13 @@ void show(BtNode*& tree) {
 
 int main()
 {
-	BtNode* tree = nullptr;
-	add_node(3, tree);
-	for (int i = 0; i < 5; i++) {
-		add_node(i, tree);
-	}
+	//BtNode* tree = nullptr;
+	//add_node(3, tree);
+	//for (int i = 0; i < 5; i++) {
+	//	add_node(i, tree);
+	//}
 	//show(tree);
-	//std::cout << possibleSums({ 10, 50, 100, 500 }, { 5, 3, 2, 2 });
+	std::cout << possibleSums({ 10, 50, 100, 500 }, { 5, 3, 2, 2 });
 
 
 	std::vector<int> a{ 1, 2, 3, 4 };
@@ -423,7 +454,7 @@ int main()
 		//	std::cout << std::endl;
 		//}
 
-	testArcade();
+	//testArcade();
 	//linkedlistImpl();
 	return 0;
 }
