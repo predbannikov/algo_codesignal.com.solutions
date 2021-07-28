@@ -104,17 +104,6 @@ Here are all the possible sums:
 100 = 100;
 10 + 100 = 110.
 As you can see, there are 9 distinct sums that can be created from non-empty groupings of your coins.*/
-std::unordered_set<int>* possibleSumsSup(std::multiset<int> mset) {
-	std::unordered_set<int>* setResults = new std::unordered_set<int>;
-	for (auto it = mset.begin(); it != mset.end(); it++) {
-		std::multiset<int> mset_tmp(mset);
-		auto itTodel = mset_tmp.find(*it);
-		mset_tmp.erase(itTodel);
-		if (!mset_tmp.empty())
-			setResults->merge(*possibleSumsSup(mset_tmp));
-	}
-	return setResults;
-}
 
 void bt(std::vector <int>& c, std::vector <int>& q, std::unordered_set <int>& sums, int idx, int sum) {
 	static int lvl = 0;
@@ -133,6 +122,12 @@ void bt(std::vector <int>& c, std::vector <int>& q, std::unordered_set <int>& su
 	}
 	lvl--;
 	//std::cout << "out lvl(" << lvl << std::endl;
+}
+
+int possibleSums(std::vector<int> coins, std::vector<int> quantity) {
+	std::unordered_set <int> sums;
+	bt(coins, quantity, sums, 0, 0);
+	return sums.size();
 }
 
 // pIn - входной массив
@@ -261,9 +256,9 @@ void ttt() {
 
 }
 
-bool NextSet(std::vector<int>& a, int n)
+bool NextSet(std::vector<int>& a, int n, int m)
 {
-	int k = a.size();
+	int k = m;
 	for (int i = k - 1; i >= 0; --i)
 		if (a[i] < n - k + i + 1)
 		{
@@ -275,45 +270,44 @@ bool NextSet(std::vector<int>& a, int n)
 	return false;
 }
 
-void genSochWithRepeat(std::vector<int>& c, std::unordered_set<int>& set, std::vector<int>& a, int m) {
+void genSochWithRepeat(std::vector<int>& c, std::unordered_set<int>& set, int n, int m) {
 
 	if (m < 1)
 		return;
+	std::vector<int> r(m);
+	for (int i = 0; i < m; i++)
+		r[i] = i;
 
-	size_t k = fact(a.size()) / (fact(a.size() - m) * fact(m));
-	std::vector<std::vector<int>> res(k, std::vector<int>(m, 0));
-	for (size_t i = 0; i < res.front().size(); i++)
-		res.front()[i] = i;
-
-	for (size_t i = 0; i < k; i++) {
-		if (!NextSet(res[i], res[i].size() - 1)) {
-
-			std::copy(res[i].begin(), res[i].end(), std::ostream_iterator<int>(std::cout << std::endl, "\t"));
-		}
-		if (i + 1 < k)
-			res[i + 1] = res[i];
+	int sum = 0;
+	for (size_t i = 0; i < r.size(); i++) {
+		sum += c[r[i]];
 	}
-	for (size_t i = 0; i < res.size(); i++) {
-		int sum = 0;
-		for (size_t j = 0; j < res[i].size(); j++) {
-			sum += c[res[i][j]];
+	set.insert(sum);
+
+
+	while (NextSet(r, n, m)) {
+		sum = 0;
+		//std::copy(r.begin(), r.end(), std::ostream_iterator<int>(std::cout << std::endl, "\t"));
+
+		for (size_t i = 0; i < r.size(); i++) {
+			sum += c[r[i]];
+			//std::cout << c[r[i]] << " ";
 		}
 		set.insert(sum);
+		//std::cout << std::endl;
 	}
-	genSochWithRepeat(c, set, a, m - 1);
+
+	genSochWithRepeat(c, set, n, m - 1);
 }
 
 
-int possibleSums(std::vector<int> coins, std::vector<int> quantity) {
-	//ttt();
+int possibleSumsMy(std::vector<int> coins, std::vector<int> quantity) {
 	std::multiset<int> mset;
 	std::unordered_set<int> set;
 	std::vector<int> vSet;
 	std::vector<int> cSet;
-	int sum = 0;
 	for (size_t i = 0; i < coins.size(); i++) {
 		for (size_t j = 0; j < quantity[i]; j++) {
-			//sum += coins[i];
 			cSet.push_back(coins[i]);
 		}
 	}
@@ -321,63 +315,20 @@ int possibleSums(std::vector<int> coins, std::vector<int> quantity) {
 		vSet.push_back(i);
 
 
-	int n = vSet.size();
-	int m = n - 1;
-	size_t k = fact(n) / (fact(n - m) * fact(m));
+	int n = vSet.size() - 1;
+	int m = n ;
 
-	genSochWithRepeat(cSet, set, vSet, vSet.size() - 1);
+
+	int sum = 0;
+	for (size_t i = 0; i < vSet.size(); i++) {
+		sum += cSet[vSet[i]];
+	}
+	set.insert(sum);
+
+	genSochWithRepeat(cSet, set, n, m);
 
 	return set.size();
 
-	//set.insert(sum);
-	//bt(coins, quantity, set, 0, 0);
-	//std::vector<int> tt{ 1, 2, 3, 4 };
-	//std::vector<int>b = coins2;
-
-	//for (int i = 0; i < fact(vSet.size()); i++)
-	//{
-	//	std::next_permutation(vSet.begin(), vSet.end());
-	//}
-
-	//test(set, vSet);
-	return set.size();
-
-	//test(coins2, coins2.size());
-	//while (true) {
-	//	std::vector<int> a;
-	//	std::copy(coins2);
-	//}
-	//int size = fact(coins2.size()) ;
-	//for (int i = 0; i < size; i++) {
-	//	std::copy(coins2.begin(), coins2.end(), std::ostream_iterator<int>(std::cout << std::endl, "\t"));
-	//	if (i == 12) {
-	//	}
-	//	if (algoNarajanj(coins2)) {
-	//		std::reverse(coins2.begin(), coins2.end());
-	//		coins2.pop_back();
-	//	}
-	//}
-
-	//do {
-	//	//for (int i = 0; i < n; ++i) {
-	//	//	if (v[i]) {
-	//	//		std::cout << (i + 1) << " ";
-	//	//	}
-	//	//}
-	//	std::copy(coins2.begin(), coins2.end(), std::ostream_iterator<int>(std::cout << std::endl, " "));
-	//} while (std::next_permutation(coins2.begin(), coins2.end()));
-	//const int test[] = { 1,2,3,4 };
-	////PermutationWithRepetition(test, 4, 4);
-
-	////std::multiset<int>::iterator it = mset.begin();
-
-
-
-
-	//std::unordered_set<int>* setResults = new std::unordered_set<int>;
-	//setResults->merge(*possibleSumsSup(mset));
-	//std::cout << std::endl;
-	return 0;
 }
 
 struct BtNode {
@@ -423,7 +374,8 @@ int main()
 	//	add_node(i, tree);
 	//}
 	//show(tree);
-	std::cout << possibleSums({ 10, 50, 100, 500 }, { 5, 3, 2, 2 });
+	//std::cout << possibleSumsMy({ 1, 2 }, { 50000, 2 });
+	std::cout << possibleSums({ 1, 2 }, { 50000, 2 });
 
 
 	std::vector<int> a{ 1, 2, 3, 4 };
