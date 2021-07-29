@@ -124,7 +124,7 @@ void bt(std::vector <int>& c, std::vector <int>& q, std::unordered_set <int>& su
 	//std::cout << "out lvl(" << lvl << std::endl;
 }
 
-int possibleSums(std::vector<int> coins, std::vector<int> quantity) {
+int possibleSumsNotMyImpl(std::vector<int> coins, std::vector<int> quantity) {
 	std::unordered_set <int> sums;
 	bt(coins, quantity, sums, 0, 0);
 	return sums.size();
@@ -209,53 +209,6 @@ uint64_t fact(uint64_t n) {
 		return fact(n - 1) * n;
 }
 
-void sm(std::vector<int>& c, std::vector<int>& q, std::unordered_set<int>& s, int ix, int sum) {
-	if (ix == c.size()) {
-		s.insert(sum);
-		return;
-	}
-	else {
-		for (int i = 0; i <= q[i]; i++) {
-			sm(c, q, s, i + 1, sum + c[ix] * i);
-		}
-	}
-}
-
-void test(std::unordered_set<int>& set, std::vector<int>& a) {
-	if (a.empty()) {
-		return;
-	}
-	std::vector<int> tmp(a.size() - 1);
-	if (tmp.empty())
-		return;
-	if (tmp.size() == 1)
-		return;
-	for (size_t i = 0; i < a.size(); i++) {
-		int index_tmp = 0;
-		for (size_t j = 0; j < a.size(); j++)
-			if (j != i) {
-				tmp[index_tmp++] = a[j];
-			}
-		int sum = 0;
-		for (int i = 0; i < tmp.size(); i++) {
-			sum += tmp[i];
-		}
-
-		std::copy(tmp.begin(), tmp.end(), std::ostream_iterator<int>(std::cout << std::endl, " "));
-		set.insert(sum);
-		test(set, tmp);
-	}
-}
-
-void ttt() {
-	uint8_t x = 0b01011000;
-	x = x & (x + 1);
-
-	std::bitset<8> b(x);
-	std::cout << "yes x=" << b << std::endl;
-
-}
-
 bool NextSet(std::vector<int>& a, int n, int m)
 {
 	int k = m;
@@ -271,64 +224,41 @@ bool NextSet(std::vector<int>& a, int n, int m)
 }
 
 void genSochWithRepeat(std::vector<int>& c, std::unordered_set<int>& set, int n, int m) {
-
 	if (m < 1)
 		return;
 	std::vector<int> r(m);
 	for (int i = 0; i < m; i++)
 		r[i] = i;
-
 	int sum = 0;
 	for (size_t i = 0; i < r.size(); i++) {
 		sum += c[r[i]];
 	}
 	set.insert(sum);
-
-
 	while (NextSet(r, n, m)) {
 		sum = 0;
-		//std::copy(r.begin(), r.end(), std::ostream_iterator<int>(std::cout << std::endl, "\t"));
-
 		for (size_t i = 0; i < r.size(); i++) {
 			sum += c[r[i]];
-			//std::cout << c[r[i]] << " ";
 		}
 		set.insert(sum);
-		//std::cout << std::endl;
 	}
-
 	genSochWithRepeat(c, set, n, m - 1);
 }
 
 
-int possibleSumsMy(std::vector<int> coins, std::vector<int> quantity) {
+int possibleSums(std::vector<int> coins, std::vector<int> quantity) {
 	std::multiset<int> mset;
 	std::unordered_set<int> set;
-	std::vector<int> vSet;
-	std::vector<int> cSet;
+	int sum = 0; 
+	set.insert(0);
+	std::unordered_set<int> curSums(set);
 	for (size_t i = 0; i < coins.size(); i++) {
-		for (size_t j = 0; j < quantity[i]; j++) {
-			cSet.push_back(coins[i]);
-		}
+		for (auto& cursum : set) 
+			for (size_t j = 1; j < quantity[i]+1; j++) 
+				curSums.insert(cursum + coins[i] * j);
+		set.merge(curSums);
+		curSums.clear();
 	}
-	for (size_t i = 0; i < cSet.size(); i++)
-		vSet.push_back(i);
-
-
-	int n = vSet.size() - 1;
-	int m = n ;
-
-
-	int sum = 0;
-	for (size_t i = 0; i < vSet.size(); i++) {
-		sum += cSet[vSet[i]];
-	}
-	set.insert(sum);
-
-	genSochWithRepeat(cSet, set, n, m);
-
-	return set.size();
-
+	return set.size()-1;
 }
 
 struct BtNode {
@@ -368,17 +298,11 @@ void show(BtNode*& tree) {
 
 int main()
 {
-	//BtNode* tree = nullptr;
-	//add_node(3, tree);
-	//for (int i = 0; i < 5; i++) {
-	//	add_node(i, tree);
-	//}
-	//show(tree);
-	//std::cout << possibleSumsMy({ 1, 2 }, { 50000, 2 });
-	std::cout << possibleSums({ 1, 2 }, { 50000, 2 });
+
+	//std::cout << possibleSumsMy({ 10, 50, 100, 500 }, { 5, 3, 2, 2 });
+	//std::cout << possibleSums({ 1, 2 }, { 50000, 2 });
 
 
-	std::vector<int> a{ 1, 2, 3, 4 };
 
 	//std::cout << containsCloseNums({ 99, 99 }, 2);
 	//	std::cout << areFollowingPatterns({
