@@ -246,59 +246,110 @@ void genSochWithRepeat(std::vector<int>& c, std::unordered_set<int>& set, int n,
 
 
 int possibleSums(std::vector<int> coins, std::vector<int> quantity) {
-	std::multiset<int> mset;
 	std::unordered_set<int> set;
-	int sum = 0; 
+	int sum = 0;
 	set.insert(0);
 	std::unordered_set<int> curSums(set);
 	for (size_t i = 0; i < coins.size(); i++) {
-		for (auto& cursum : set) 
-			for (size_t j = 1; j < quantity[i]+1; j++) 
+		for (auto& cursum : set)
+			for (size_t j = 1; j < quantity[i] + 1; j++)
 				curSums.insert(cursum + coins[i] * j);
 		set.merge(curSums);
 		curSums.clear();
 	}
-	return set.size()-1;
+	return set.size() - 1;
 }
 
-struct BtNode {
-	BtNode(int value_, BtNode* left_ = nullptr, BtNode* right_ = nullptr) : value(value_), l(left_), r(right_) {}
-	int value;
-	BtNode* l, * r;
-};
+std::string swapLexOrder(std::string str, std::vector<std::vector<int>> pairs) {
+	std::vector<std::unordered_set<int>> vSet;
+	std::unordered_set<int> curSet;
 
-void add_node(int value, BtNode*& tree) {
-	if (tree == nullptr)
-		tree = new BtNode(value);
-
-	else if (value < tree->value)
-		if (tree->l != nullptr)
-			add_node(value, tree->l);
-		else
-			tree->l = new BtNode(value);
-	else if (value >= tree->value)
-		if (tree->r != nullptr)
-			add_node(value, tree->r);
-		else
-			tree->r = new BtNode(value);
-
-}
-
-void show(BtNode*& tree) {
-	if (tree != nullptr) {
-		show(tree->l);
-		std::cout << tree->value << std::endl;
-
-		show(tree->r);
+	curSet.insert(pairs[0][0]);
+	curSet.insert(pairs[0][1]);
+	pairs[0][0] = 0;
+	pairs[0][1] = 0;
+	int* first = new(int), * second = new (int);
+	for (size_t j = 1; j < pairs.size(); j++) {
+		for (size_t i = 1; i < pairs.size(); i++) {
+			if (pairs[i][0] == 4) {
+				std::cout << "stop";
+			}
+			if (!pairs[i][0] && !pairs[i][1]) {
+				continue;
+			}
+			if (curSet.find(pairs[i][0]) != curSet.end()) {
+				curSet.insert(pairs[i][1]);
+				pairs[i][0] = 0;
+				pairs[i][1] = 0;
+			}
+			else {
+				*first = pairs[i][0];
+				*second = pairs[i][1];
+			}
+			if (curSet.find(pairs[i][1]) != curSet.end()) {
+				curSet.insert(pairs[i][0]);
+				pairs[i][0] = 0;
+				pairs[i][1] = 0;
+			}
+			else {
+				*first = pairs[i][0];
+				*second = pairs[i][1];
+			}
+		}
+		if (curSet.empty()) {
+			curSet.insert(*first);
+			curSet.insert(*second);
+			*first = 0;
+			*second = 0;
+		}
+		else {
+			if(curSet.size() != 1)
+				vSet.push_back(curSet);
+			curSet.clear();
+		}
 	}
-	else {
-		//std::cout << "endl ";
+
+
+	std::unordered_set<std::string> set;
+	std::unordered_set<std::string> newSet;
+	std::string s = str;
+	set.insert(str);
+	for (size_t i = 0; i < pairs.size(); i++) {
+		for (size_t j = 0; j < pairs.size(); j++) {
+			for (const std::string& cur : set) {
+				s = cur;
+				std::swap(s[pairs[j][0] - 1], s[pairs[j][1] - 1]);
+				newSet.insert(s);
+			}
+			set.merge(newSet);
+		}
 	}
+	std::set<std::string> ss;
+	for (std::string item : set) { ss.insert(item); }
+
+	return *(--ss.end());
 }
 
 int main()
 {
-
+	//std::cout << swapLexOrder(
+	// "abdc", { 
+	// {1, 4}, 
+	// {3, 4} });
+	//std::cout << swapLexOrder("abcdefgh", { {1, 4}, {7,8} });
+	std::cout << swapLexOrder("fixmfbhyutghwbyezkveyameoamqoi", {
+		{8,5} ,
+ {10,8},
+ {4,18},
+ {20,12},
+ {5,2},
+ {17,2},
+ {13,25},
+ {29,12},
+ {22,2},
+ {17,11}
+		});
+	// 
 	//std::cout << possibleSumsMy({ 10, 50, 100, 500 }, { 5, 3, 2, 2 });
 	//std::cout << possibleSums({ 1, 2 }, { 50000, 2 });
 
