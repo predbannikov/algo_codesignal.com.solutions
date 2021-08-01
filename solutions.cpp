@@ -15,10 +15,6 @@ struct Tree {
 	Tree* right;
 };
 
-void add_node(Tree<int> t) {
-
-}
-
 std::string* loadStringJson(const std::string path) {
 	std::ifstream file(path);
 	if (!file.is_open()) {
@@ -129,36 +125,107 @@ void parseJSONtoTree(std::string& str, int &idx, Tree<int>*&tree, size_t &lastIn
 	}
 }
 
-void iterationTree(Tree<int>* tree) {
+void iterationTreeRecurs(Tree<int>* tree) {
 	if (!tree)
 		return;
 	std::cout << tree->value << std::endl;
 	if (tree->left)
-		iterationTree(tree->left);
+		iterationTreeRecurs(tree->left);
 	if (tree->right)
-		iterationTree(tree->right);
+		iterationTreeRecurs(tree->right);
+}
+
+void iterationTreeStack(Tree<int>* tree) {
+	std::stack<Tree<int>*>stack;
+	stack.push(tree);
+	while (!stack.empty()) {
+		Tree<int>* node = stack.top();
+		stack.pop();
+		std::cout << node->value << std::endl;
+		if (node->right)
+			stack.push(node->right);
+		if (node->left)
+			stack.push(node->left);
+	}
+}
+
+void iterationTreeQueue(Tree<int>* tree) {
+	std::queue<Tree<int>*>queue;
+	queue.push(tree);
+	while (!queue.empty()) {
+		Tree<int>* node = queue.front();
+		queue.pop();
+		std::cout << node->value << std::endl;
+		if (node->right)
+			queue.push(node->right);
+		if (node->left)
+			queue.push(node->left);
+	}
 }
 
 
-void strJsonToTree(std::string* str) {
+Tree<int>* strJsonToTree(std::string* str) {
 	Tree<int>* tree = nullptr;
 	size_t lastIndex = 0;
 	int idx = 0;
 	parseJSONtoTree(*str, idx, tree, lastIndex);
-	iterationTree(tree);
+	//iterationTreeQueue(tree);
+	//iterationTreeStack(tree);
+	//iterationTreeRecurs(tree);
+	return tree;
 }
 
+bool hightS(Tree<int>* t, int s, int sum) {
+	if (t == nullptr)
+		return false;
+	sum += t->value;
+	if(hightS(t->left, s, sum))
+		return true;
+	if (hightS(t->right, s, sum))
+		return true;
 
-bool hasPathWithGivenSum(Tree<int>* t, int s) {
-
+	if(!t->left && !t->right && sum == s)
+		return true;
 	return false;
+}
+
+/*Given a binary tree t and an integer s, determine whether there is a root to leaf path in t such that the sum of vertex values equals s.
+s = 7,
+the output should be hasPathWithGivenSum(t, s) = true.
+This is what this tree looks like:
+
+	  4
+	 / \
+	1   3
+   /   / \
+  -2  1   2
+	\    / \
+	 3  -2 -3
+Path 4 -> 3 -> 2 -> -2 gives us 7, the required sum.
+and
+s = 7,
+the output should be hasPathWithGivenSum(t, s) = false.
+This is what this tree looks like:
+	  4
+	 / \
+	1   3
+   /   / \
+  -2  1   2
+	\    / \
+	 3  -4 -3
+There is no path from root to leaf with the given sum 7.
+	 */
+bool hasPathWithGivenSum(Tree<int>* t, int s) {
+	int sum = 0;
+	return hightS(t, s, sum);
 }
 
 
 int main()
 {
+	Tree<int> *t = strJsonToTree(loadStringJson("..\\..\\..\\data\\hasPathWithGivenSum_test1.json"));
+	std::cout << std::boolalpha << hasPathWithGivenSum(t, 7);
 	//std::cout << std::filesystem::current_path();
-	strJsonToTree(loadStringJson("..\\..\\..\\data\\hasPathWithGivenSum_test1.json"));
 	//hashtables();
 	//testArcade();
 	//linkedlistImpl();
