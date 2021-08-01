@@ -130,9 +130,50 @@ std::vector<std::string> allLongestStrings(std::vector<std::string> inputArray) 
 	return strs;
 }
 
+int commonCharacterCount(std::string s1, std::string s2) {
+	int sum = 0;
+	for (size_t i = 0; i < s1.size(); i++) {
+		std::string::const_iterator it = std::find(s2.begin(), s2.end(), s1[i]);
+		if (it != s2.end()) {
+			s2.erase(it);
+			sum++;
+		}
+	}
+	return sum;
+}
+
+bool isLucky(int n) {
+	std::list<int> list;
+	while (n / 10 != 0) {
+		int ost = n % 10;
+		list.push_back(ost);
+		n /= 10;
+	}
+	list.push_back(n);
+	auto it = list.begin();
+	int counter = 0;
+	int sum1 = 0;
+	int sum2 = 0;
+	while (it != list.end()) {
+		if (counter < list.size()/2) {
+			sum1 += *it;
+		}
+		else {
+			sum2 += *it;
+		}
+		it++;
+		counter++;
+	}
+	if (sum1 == sum2)
+		return true;
+	return false;
+}
+
 
  
 void testArcade() {
+	std::cout << std::boolalpha << isLucky(1230);
+	//std::cout << commonCharacterCount("aabcc", "adcaa");
 	//std::vector<std::string> strs = allLongestStrings({ "abacaba",
 	// "abacab",
 	// "abac",

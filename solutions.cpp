@@ -224,10 +224,10 @@ bool hasPathWithGivenSum(Tree<int>* t, int s) {
 int main()
 {
 	Tree<int> *t = strJsonToTree(loadStringJson("..\\..\\..\\data\\hasPathWithGivenSum_test1.json"));
-	std::cout << std::boolalpha << hasPathWithGivenSum(t, 7);
+	//std::cout << std::boolalpha << hasPathWithGivenSum(t, 7);
 	//std::cout << std::filesystem::current_path();
 	//hashtables();
-	//testArcade();
+	testArcade();
 	//linkedlistImpl();
 	return 0;
 }
