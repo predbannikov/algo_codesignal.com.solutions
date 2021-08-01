@@ -9,10 +9,13 @@
 #include <stack>
 #include <unordered_map>
 #include <unordered_set>
+#include <sstream>
 #include <map>
 #include <set>
 #include <iterator>
 #include <bitset>
+#include <fstream>
+#include <filesystem>
 
 //#include <list>
 
