@@ -38,10 +38,10 @@ std::vector<std::string> split(const std::string& s, char delimiter)
 	return tokens;
 }
 
-void parseJSONtoTree(std::string& str, int &idx, Tree<int>*&tree, size_t &lastIndex) {
+void parseJSONtoTree(std::string& str, int& idx, Tree<int>*& tree, size_t& lastIndex) {
 	int sign = 0;
 	tree = new Tree<int>;
-	while(idx < str.size()) {
+	while (idx < str.size()) {
 		char ch = str[idx];
 		switch (ch)
 		{
@@ -103,10 +103,10 @@ void parseJSONtoTree(std::string& str, int &idx, Tree<int>*&tree, size_t &lastIn
 			switch (sign)
 			{
 			case 1: {
-					std::string tmp = str.substr(lastIndex + 1, idx - (lastIndex + 1));
-					tree->value = std::stoi(tmp);
-				}
-				break;
+				std::string tmp = str.substr(lastIndex + 1, idx - (lastIndex + 1));
+				tree->value = std::stoi(tmp);
+			}
+				  break;
 			case 2:
 				tree->left = nullptr;
 				break;
@@ -179,12 +179,12 @@ bool hightS(Tree<int>* t, int s, int sum) {
 	if (t == nullptr)
 		return false;
 	sum += t->value;
-	if(hightS(t->left, s, sum))
+	if (hightS(t->left, s, sum))
 		return true;
 	if (hightS(t->right, s, sum))
 		return true;
 
-	if(!t->left && !t->right && sum == s)
+	if (!t->left && !t->right && sum == s)
 		return true;
 	return false;
 }
@@ -220,14 +220,72 @@ bool hasPathWithGivenSum(Tree<int>* t, int s) {
 	return hightS(t, s, sum);
 }
 
+/* 
+Given a binary tree t, determine whether it is symmetric around its center, i.e. each side mirrors the other.
+the output should be isTreeSymmetric(t) = true.
+Here's what the tree in this example looks like:
+	1
+   / \
+  2   2
+ / \ / \
+3  4 4  3
+As you can see, it is symmetric.
+the output should be isTreeSymmetric(t) = true.
+Here's what the tree in this example looks like:
+	1
+   / \
+  2   2
+ / \ / \
+3  4 4  3
+As you can see, it is symmetric.
+*/
+bool isTreeSymmetric(Tree<int>* t) {
+	if (t == nullptr)
+		return true;
+	std::stack<Tree<int>*> stackLeft;
+	std::stack<Tree<int>*> stackRight;
+	stackLeft.push(t);
+	stackRight.push(t);
+	while (!stackLeft.empty() && !stackRight.empty()) {
+		Tree<int>* left = stackLeft.top();
+		stackLeft.pop();
+		Tree<int>* right = stackRight.top();
+		stackRight.pop();
+		if (left->value != right->value)
+			return false;
+
+		if (left->left) {
+			if (right->right) {
+				stackLeft.push(left->left);
+				stackRight.push(right->right);
+			}
+			else {
+				return false;
+			}
+		}
+		if (left->right) {
+			if (right->left) {
+				stackLeft.push(left->right);
+				stackRight.push(right->left);
+			}
+			else {
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
+
 
 int main()
 {
-	Tree<int> *t = strJsonToTree(loadStringJson("..\\..\\..\\data\\hasPathWithGivenSum_test1.json"));
+	Tree<int>* t = strJsonToTree(loadStringJson("..\\..\\..\\data\\hasPathWithGivenSum_test1.json"));
+	std::cout << std::boolalpha << isTreeSymmetric(t);
 	//std::cout << std::boolalpha << hasPathWithGivenSum(t, 7);
 	//std::cout << std::filesystem::current_path();
 	//hashtables();
-	testArcade();
+	//testArcade();
 	//linkedlistImpl();
 	return 0;
 }
