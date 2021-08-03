@@ -277,6 +277,11 @@ bool isTreeSymmetric(Tree<int>* t) {
 }
 
 
+string findProfession(int level, int pos) {
+
+}
+
+
 
 int main()
 {
