@@ -318,12 +318,90 @@ std::string findProfession(int level, int pos) {
 }
 
 
+/*Note: Your solution should have only one BST traversal and O(1) extra space complexity, since this is what you will be asked to accomplish in an interview.
+
+A tree is considered a binary search tree (BST) if for each of its nodes the following is true:
+
+The left subtree of a node contains only nodes with keys less than the node's key.
+The right subtree of a node contains only nodes with keys greater than the node's key.
+Both the left and the right subtrees must also be binary search trees.
+Given a binary search tree t, find the kth smallest element in it.
+
+Note that kth smallest element means kth element in increasing order. See examples for better understanding.
+and k = 4, the output should be
+kthSmallestInBST(t, k) = 5.
+
+Here is what t looks like:
+
+   3
+ /   \
+1     5
+	 / \
+	4   6
+The values of t are [1, 3, 4, 5, 6], and the 4th smallest is 5.
+and k = 1, the output should be
+kthSmallestInBST(t, k) = -2.
+
+Here is what t looks like:
+
+	 1
+	/
+  -1
+  / \
+-2   0
+The values of t are [-2, -1, 0, 1], and the 1st smallest is -2.*/
+
+//Tree<int>* treeMin(Tree<int>* min) {
+//	while (min->left != nullptr)
+//		min = min->left;
+//	return min;
+//}
+//
+//Tree<int>* rightItem(Tree<int>* t) {
+//	if (t->right != nullptr) {
+//		return treeMin(t);
+//	} 
+//	Tree<int> *right = t->right;
+//
+//	while(right.)
+//}
+
+bool helperKthSmallestInBST(Tree<int>* t, int& k, int& ret, int& counter) {
+
+	if (t->left) {
+		if (helperKthSmallestInBST(t->left, k, ret, counter))
+			return true;
+	}
+	counter++;
+	if (counter == k) {
+		ret = t->value;
+		return true;
+	}
+	if (t->right) {
+		if (helperKthSmallestInBST(t->right, k, ret, counter))
+			return true;
+	}
+	return false;
+}
+
+int kthSmallestInBST(Tree<int>* t, int k) {
+
+
+	int ret = 0;
+	int counter = 0;
+	helperKthSmallestInBST(t, k, ret, counter);
+	return ret;
+}
+
 int main()
 {
 	//std::cout << test(8);
 	Tree<int>* t = strJsonToTree(loadStringJson("..\\..\\..\\data\\hasPathWithGivenSum_test1.json"));
 
-	std::cout << findProfession(4, 6);
+	std::cout << kthSmallestInBST(t, 4);
+
+
+	//std::cout << findProfession(4, 6);
 
 	//std::cout << std::boolalpha << isTreeSymmetric(t);
 	//std::cout << std::boolalpha << hasPathWithGivenSum(t, 7);
