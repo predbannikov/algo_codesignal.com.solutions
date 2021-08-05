@@ -220,7 +220,7 @@ bool hasPathWithGivenSum(Tree<int>* t, int s) {
 	return hightS(t, s, sum);
 }
 
-/* 
+/*
 Given a binary tree t, determine whether it is symmetric around its center, i.e. each side mirrors the other.
 the output should be isTreeSymmetric(t) = true.
 Here's what the tree in this example looks like:
@@ -277,16 +277,55 @@ bool isTreeSymmetric(Tree<int>* t) {
 }
 
 
-string findProfession(int level, int pos) {
+/*Consider a special family of Engineers and Doctors. This family has the following rules:
 
+Everybody has two children.
+The first child of an Engineer is an Engineer and the second child is a Doctor.
+The first child of a Doctor is a Doctor and the second child is an Engineer.
+All generations of Doctors and Engineers start with an Engineer.
+We can represent the situation using this diagram:
+				E
+		   /         \
+		  E           D
+		/   \        /  \
+	   E     D      D    E
+	  / \   / \    / \   / \
+	 E   D D   E  D   E E   D
+Given the level and position of a person in the ancestor tree above, find the profession of the person.
+Note: in this tree first child is considered as left child, second - as right.
+
+Example
+
+For level = 3 and pos = 3, the output should be
+findProfession(level, pos) = "Doctor".*/
+std::string helpFindProfession(int pos) {
+	if (pos == 1)
+		return "left";
+	if (helpFindProfession((pos + 1) / 2) == "right") {
+		return (pos) % 2 ? "right" : "left";
+	}
+	else {
+		return (pos) % 2 ? "left" : "right";
+	}
 }
 
+std::string findProfession(int level, int pos) {
+
+	if (helpFindProfession(pos) == "right")
+		return "Doctor";
+	else
+		return "Engineer";
+}
 
 
 int main()
 {
+	//std::cout << test(8);
 	Tree<int>* t = strJsonToTree(loadStringJson("..\\..\\..\\data\\hasPathWithGivenSum_test1.json"));
-	std::cout << std::boolalpha << isTreeSymmetric(t);
+
+	std::cout << findProfession(4, 6);
+
+	//std::cout << std::boolalpha << isTreeSymmetric(t);
 	//std::cout << std::boolalpha << hasPathWithGivenSum(t, 7);
 	//std::cout << std::filesystem::current_path();
 	//hashtables();
