@@ -393,13 +393,84 @@ int kthSmallestInBST(Tree<int>* t, int k) {
 	return ret;
 }
 
+/*Given two binary trees t1 and t2, determine whether the second tree is a subtree of the first tree. A subtree for vertex v in a binary tree t is a tree consisting of v and all its descendants in t. Determine whether or not there is a vertex v (possibly none) in tree t1 such that a subtree for vertex v (possibly empty) in t1 equals t2.
+* the output should be isSubtree(t1, t2) = true.
+
+This is what these trees look like:
+
+	  t1:             t2:
+	   5              10
+	  / \            /  \
+	10   7          4    6
+   /  \            / \    \
+  4    6          1   2   -1
+ / \    \
+1   2   -1
+As you can see, t2 is a subtree of t1 (the vertex in t1 with value 10).
+
+
+the output should be isSubtree(t1, t2) = false.
+This is what these trees look like:
+		t1:            t2:
+		 5             10
+	   /   \          /  \
+	 10     7        4    6
+   /    \           / \    \
+  4     6          1   2   -1
+ / \   /
+1   2 -1
+As you can see, there is no vertex v such that the subtree of t1 for vertex v equals t2.
+the output should be isSubtree(t1, t2) = false.
+*/
+bool compareTree(Tree<int>* t1, Tree<int>* t2) {
+	std::stack<std::pair<Tree<int>*, Tree<int>*>> stack;
+	stack.push({ t1, t2 });
+	while (!stack.empty()) {
+		auto [tr1, tr2] = stack.top();
+		stack.pop();
+		if (tr1 != tr1)
+			return false;
+		if (tr1 == nullptr || tr2 == nullptr)
+			return false;
+		if (tr1->value != tr2->value)
+			return false;
+		if (tr1->left || tr2->left) {
+			stack.push({ tr1->left, tr2->left });
+		}
+		if (tr1->right || tr2->right)
+			stack.push({ tr1->right, tr2->right });
+	}
+	return true;
+}
+bool isSubtree(Tree<int>* t1, Tree<int>* t2) {
+	if (t2 == nullptr)
+		return true;
+	std::stack<Tree<int>*> stack({ t1 });
+	while (!stack.empty()) {
+		Tree<int>* tree = stack.top();
+		stack.pop();
+		if (tree->value == 2)
+			std::cout << "stop";
+		if (compareTree(tree, t2))
+			return true;
+		if (tree->left)
+			stack.push(tree->left);
+		if (tree->right)
+			stack.push(tree->right);
+	}
+
+	return 	false;
+}
+
 int main()
 {
 	//std::cout << test(8);
 	Tree<int>* t = strJsonToTree(loadStringJson("..\\..\\..\\data\\hasPathWithGivenSum_test1.json"));
+	Tree<int>* t2 = strJsonToTree(loadStringJson("..\\..\\..\\data\\hasPathWithGivenSum_test2.json"));
 
-	std::cout << kthSmallestInBST(t, 4);
+	std::cout << std::boolalpha << isSubtree(t, t2);
 
+	//std::cout << kthSmallestInBST(t, 4);
 
 	//std::cout << findProfession(4, 6);
 
