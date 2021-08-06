@@ -15,6 +15,49 @@ struct Tree {
 	Tree* right;
 };
 
+void heightTree(Tree<int>* tree, int lvl, int &max) {
+	if(max < lvl)
+		max = lvl;
+	if (tree->left != nullptr) {
+		heightTree(tree->left, lvl+1, max);
+	}
+	if (tree->right != nullptr) {
+		heightTree(tree->right, lvl+1, max);
+	}
+	return ;
+}
+
+#define WIDTH 120
+#define HALF_WIDTH (WIDTH/2)
+
+void traversalTree(std::vector<std::string> &v, Tree<int>* tree, int lvl, int i1) {
+
+	std::string val = std::to_string(tree->value);
+	for (size_t i = i1, j = 0; i < i1 + val.size(); i++, j++)
+		v[lvl * 2][i] = val[j];
+	int diff;
+	if (tree->left != nullptr) {
+		diff = HALF_WIDTH / pow(2, lvl);
+		v[(lvl * 2) + 1][i1 - diff/2] = '/';
+		traversalTree(v, tree->left, lvl + 1, i1 - diff);
+
+	}
+	if (tree->right != nullptr) {
+		diff = HALF_WIDTH / pow(2, lvl);
+		v[(lvl * 2) + 1][i1 + diff/2] = '\\';
+		traversalTree(v, tree->right, lvl + 1, i1 + diff);
+	}
+	return;
+}
+
+void printTree(Tree<int>* tree) {
+	std::vector<std::string> pic(30, std::string(WIDTH, ' '));
+	traversalTree(pic, tree, 1, HALF_WIDTH);
+	for (size_t i = 0; i < pic.size(); i++) {
+		std::cout << pic[i] << std::endl;
+	}
+}
+
 std::string* loadStringJson(const std::string path) {
 	std::ifstream file(path);
 	if (!file.is_open()) {
@@ -445,12 +488,12 @@ bool compareTree(Tree<int>* t1, Tree<int>* t2) {
 bool isSubtree(Tree<int>* t1, Tree<int>* t2) {
 	if (t2 == nullptr)
 		return true;
+	if (t1 == nullptr)
+		return false;
 	std::stack<Tree<int>*> stack({ t1 });
 	while (!stack.empty()) {
 		Tree<int>* tree = stack.top();
 		stack.pop();
-		if (tree->value == 2)
-			std::cout << "stop";
 		if (compareTree(tree, t2))
 			return true;
 		if (tree->left)
@@ -458,8 +501,112 @@ bool isSubtree(Tree<int>* t1, Tree<int>* t2) {
 		if (tree->right)
 			stack.push(tree->right);
 	}
-
 	return 	false;
+}
+
+/*Note: Your solution should have O(inorder.length) time complexity, since this is what you will be asked to accomplish in an interview.
+
+Let's define inorder and preorder traversals of a binary tree as follows:
+
+Inorder traversal first visits the left subtree, then the root, then its right subtree;
+Preorder traversal first visits the root, then its left subtree, then its right subtree.
+For example, if tree looks like this:
+
+	1
+   / \
+  2   3
+ /   / \
+4   5   6
+then the traversals will be as follows:
+
+Inorder traversal: [4, 2, 1, 5, 3, 6]
+Preorder traversal: [1, 2, 4, 3, 5, 6]
+Given the inorder and preorder traversals of a binary tree t, but not t itself, restore t and return it.
+
+Example
+
+For inorder = [4, 2, 1, 5, 3, 6] and preorder = [1, 2, 4, 3, 5, 6], the output should be
+restoreBinaryTree(inorder, preorder) = {
+	"value": 1,
+	"left": {
+		"value": 2,
+		"left": {
+			"value": 4,
+			"left": null,
+			"right": null
+		},
+		"right": null
+	},
+	"right": {
+		"value": 3,
+		"left": {
+			"value": 5,
+			"left": null,
+			"right": null
+		},
+		"right": {
+			"value": 6,
+			"left": null,
+			"right": null
+		}
+	}
+}
+For inorder = [2, 5] and preorder = [5, 2], the output should be
+restoreBinaryTree(inorder, preorder) = {
+	"value": 5,
+	"left": {
+		"value": 2,
+		"left": null,
+		"right": null
+	},
+	"right": null
+}*/
+
+void makeBT(std::vector<int>::iterator& cur_it, std::vector<int>::iterator& end, Tree<int>* t) {
+	if (cur_it == end)
+		return;
+	if (t == nullptr) {
+		t = new Tree<int>(*cur_it);
+		cur_it++;
+		//if(cur_it)
+		makeBT(cur_it, end, t);
+	}
+}
+
+Tree<int>* restoreBinaryTree(std::vector<int> inorder, std::vector<int> preorder) {
+	Tree<int>* t;
+	std::vector<int>::iterator in_it = inorder.begin();
+	std::vector<int>::iterator save_it = in_it;
+	std::vector<int>::iterator pre_it = preorder.begin();
+	std::stack<Tree<int>*> stack;
+	while (save_it != inorder.end()) {
+		//if (t == nullptr)
+		//	t = new Tree<int>(*in_it);
+		while (in_it != pre_it) {
+			stack.push(new Tree<int>);
+			in_it++;
+		}
+		while (pre_it != save_it) {
+			Tree<int>* tree = stack.top();
+			if (t == nullptr)
+				t = tree;
+			stack.pop();
+			t = tree;
+		}
+		if (*in_it == *pre_it) {
+			Tree<int>* insertPreorder = t;
+			while (pre_it != save_it) {
+				insertPreorder->left = new Tree<int>(*pre_it);
+				insertPreorder = insertPreorder->left;
+			}
+			save_it = in_it;
+		}
+		else {
+			in_it++;
+		}
+	}
+	return t;
+	//makeBT(inorder.begin(), inorder.end(), t);
 }
 
 int main()
@@ -468,7 +615,10 @@ int main()
 	Tree<int>* t = strJsonToTree(loadStringJson("..\\..\\..\\data\\hasPathWithGivenSum_test1.json"));
 	Tree<int>* t2 = strJsonToTree(loadStringJson("..\\..\\..\\data\\hasPathWithGivenSum_test2.json"));
 
-	std::cout << std::boolalpha << isSubtree(t, t2);
+	Tree<int>* tree = restoreBinaryTree({ 4, 2, 1, 5, 3, 6 }, { 1, 2, 4, 3, 5, 6 });
+	printTree(tree);
+
+	//std::cout << std::boolalpha << isSubtree(t, t2);
 
 	//std::cout << kthSmallestInBST(t, 4);
 
