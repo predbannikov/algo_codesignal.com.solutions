@@ -15,22 +15,22 @@ struct Tree {
 	Tree* right;
 };
 
-void heightTree(Tree<int>* tree, int lvl, int &max) {
-	if(max < lvl)
+void heightTree(Tree<int>* tree, int lvl, int& max) {
+	if (max < lvl)
 		max = lvl;
 	if (tree->left != nullptr) {
-		heightTree(tree->left, lvl+1, max);
+		heightTree(tree->left, lvl + 1, max);
 	}
 	if (tree->right != nullptr) {
-		heightTree(tree->right, lvl+1, max);
+		heightTree(tree->right, lvl + 1, max);
 	}
-	return ;
+	return;
 }
 
-#define WIDTH 120
+#define WIDTH 40
 #define HALF_WIDTH (WIDTH/2)
 
-void traversalTree(std::vector<std::string> &v, Tree<int>* tree, int lvl, int i1) {
+void traversalTree(std::vector<std::string>& v, Tree<int>* tree, int lvl, int i1) {
 
 	std::string val = std::to_string(tree->value);
 	for (size_t i = i1, j = 0; i < i1 + val.size(); i++, j++)
@@ -38,13 +38,13 @@ void traversalTree(std::vector<std::string> &v, Tree<int>* tree, int lvl, int i1
 	int diff;
 	if (tree->left != nullptr) {
 		diff = HALF_WIDTH / pow(2, lvl);
-		v[(lvl * 2) + 1][i1 - diff/2] = '/';
+		v[(lvl * 2) + 1][i1 - diff / 2] = '/';
 		traversalTree(v, tree->left, lvl + 1, i1 - diff);
 
 	}
 	if (tree->right != nullptr) {
 		diff = HALF_WIDTH / pow(2, lvl);
-		v[(lvl * 2) + 1][i1 + diff/2] = '\\';
+		v[(lvl * 2) + 1][i1 + diff / 2] = '\\';
 		traversalTree(v, tree->right, lvl + 1, i1 + diff);
 	}
 	return;
@@ -79,6 +79,103 @@ std::vector<std::string> split(const std::string& s, char delimiter)
 		tokens.push_back(token);
 	}
 	return tokens;
+}
+
+void parseJSONtoTwoVectors(std::string& str, std::vector<int>& one, std::vector<int>& two, int& idx, int& lastIdx) {
+	int sign = 0;
+	while (idx < str.size()) {
+		char ch = str[idx];
+		switch (ch)
+		{
+		case '{':
+			switch (sign)
+			{
+			case 1:
+				std::stoi(str.substr(lastIdx + 1, idx - lastIdx - 1));
+				break;
+			case 2:
+				idx++;
+				parseJSONtoTwoVectors(str, one, two, idx, lastIdx);
+				break;
+			case 3:
+				idx++;
+				parseJSONtoTwoVectors(str, one, two, idx, lastIdx);
+				break;
+			case 4:
+				break;
+			default:
+				break;
+			}
+			sign = 0;
+			lastIdx = idx;
+			break;
+		case '}':
+			switch (sign)
+			{
+			case 1: {
+				one.push_back(std::stoi(str.substr(lastIdx + 1, idx - (lastIdx + 1))));
+				break;
+			}
+			}
+			lastIdx = idx;
+			return;
+		case '[':
+			lastIdx = idx;
+			break;
+		case ']':
+			switch (sign)
+			{
+			case 1:
+				one.push_back(std::stoi(str.substr(lastIdx + 1, idx - (lastIdx + 1))));
+				break;
+			case 2:
+				two.push_back(std::stoi(str.substr(lastIdx + 1, idx - (lastIdx + 1))));
+				break;
+			};
+			sign = 0;
+			lastIdx = idx;
+			break;
+		case ':':
+			if (str.substr(idx - 8, 7) == "inorder")
+				sign = 1;
+			else if (idx - 9 >= 0 && str.substr(idx - 9, 8) == "preorder")
+				sign = 2;
+			else if (str.substr(idx - 6, 5) == "input")
+				sign = 3;
+			else if (str.substr(idx - 7, 6) == "output") {
+				std::cout << "this is the data of " << str.substr(idx - 7, 6) << " need make new Tree" << std::endl;
+				return;
+			}
+			lastIdx = idx;
+			break;
+		case ',':
+			switch (sign)
+			{
+			case 1: 
+				one.push_back(std::stoi(str.substr(lastIdx + 1, idx - (lastIdx + 1))));
+				break;
+			case 2:
+				two.push_back(std::stoi(str.substr(lastIdx + 1, idx - (lastIdx + 1))));
+				break;
+			};
+			lastIdx = idx;
+			break;
+		}
+		idx++;
+	}
+}
+
+void loadTooVectors(std::vector<int>& one, std::vector<int>& two, std::string path) {
+	std::ifstream file(path);
+	if (!file.is_open()) {
+		std::cerr << "could not open file " << path << std::endl;
+		exit(EXIT_FAILURE);
+	}
+	std::string* ret = new std::string(std::istream_iterator<char>(file), std::istream_iterator<char>());
+	int idx = 0, lastIdx = 0;
+	parseJSONtoTwoVectors(*ret, one, two, idx, lastIdx);
+	file.close();
+
 }
 
 void parseJSONtoTree(std::string& str, int& idx, Tree<int>*& tree, size_t& lastIndex) {
@@ -573,50 +670,60 @@ void makeBT(std::vector<int>::iterator& cur_it, std::vector<int>::iterator& end,
 	}
 }
 
+void fillBranch(std::vector<int>::iterator& pre, std::vector<int>::iterator& marker, Tree<int>* t) {
+	if (*pre == *marker)
+		return;
+	pre++;
+	t->left = new Tree<int>(*pre);
+	fillBranch(pre, marker, t->left);
+}
+
+//void createNode(std::vector<int>::iterator& it, std::vector<int>::iterator& end, Tree<int>* t) {
+//	if (it != end) {
+//		t = new Tree<int>(*it);
+//		fillBranch();
+//		createNode(it, end, t);
+//	}
+//}
+
 Tree<int>* restoreBinaryTree(std::vector<int> inorder, std::vector<int> preorder) {
-	Tree<int>* t;
+	Tree<int>* t = nullptr;
 	std::vector<int>::iterator in_it = inorder.begin();
 	std::vector<int>::iterator save_it = in_it;
 	std::vector<int>::iterator pre_it = preorder.begin();
-	std::stack<Tree<int>*> stack;
-	while (save_it != inorder.end()) {
-		//if (t == nullptr)
-		//	t = new Tree<int>(*in_it);
-		while (in_it != pre_it) {
-			stack.push(new Tree<int>);
+	if (pre_it != preorder.end())
+		t = new Tree<int>(*pre_it);
+	else
+		return new Tree<int>();
+	Tree<int>* tmpTree = t;
+	while (in_it != inorder.end()) {
+		while (*in_it != *pre_it)
 			in_it++;
-		}
-		while (pre_it != save_it) {
-			Tree<int>* tree = stack.top();
-			if (t == nullptr)
-				t = tree;
-			stack.pop();
-			t = tree;
-		}
-		if (*in_it == *pre_it) {
-			Tree<int>* insertPreorder = t;
-			while (pre_it != save_it) {
-				insertPreorder->left = new Tree<int>(*pre_it);
-				insertPreorder = insertPreorder->left;
-			}
-			save_it = in_it;
-		}
-		else {
-			in_it++;
-		}
+		fillBranch(pre_it, save_it, tmpTree);
+		in_it++;
+		pre_it++;
+		if (pre_it != preorder.end())
+			tmpTree->right = new Tree<int>(*pre_it);
+		else
+			break;
+		if (in_it == inorder.end())
+			break;
+		save_it = in_it;
+		tmpTree = tmpTree->right;
 	}
 	return t;
-	//makeBT(inorder.begin(), inorder.end(), t);
 }
-
 int main()
 {
-	//std::cout << test(8);
-	Tree<int>* t = strJsonToTree(loadStringJson("..\\..\\..\\data\\hasPathWithGivenSum_test1.json"));
-	Tree<int>* t2 = strJsonToTree(loadStringJson("..\\..\\..\\data\\hasPathWithGivenSum_test2.json"));
-
-	Tree<int>* tree = restoreBinaryTree({ 4, 2, 1, 5, 3, 6 }, { 1, 2, 4, 3, 5, 6 });
-	printTree(tree);
+	Tree<int>* t = strJsonToTree(loadStringJson("..\\..\\..\\data\\tree1.json"));
+	//printTree(t);
+	std::cout << std::endl;
+	Tree<int>* t2 = strJsonToTree(loadStringJson("..\\..\\..\\data\\tree2.json"));
+	std::vector<int> v1;
+	std::vector<int> v2;
+	loadTooVectors(v1, v2, "..\\..\\..\\data\\too_vectors.json");
+	Tree<int>* tree = restoreBinaryTree(v1, v2);
+	//printTree(tree);
 
 	//std::cout << std::boolalpha << isSubtree(t, t2);
 
