@@ -686,6 +686,24 @@ void fillBranch(std::vector<int>::iterator& pre, std::vector<int>::iterator& mar
 //	}
 //}
 
+
+
+Tree<int>* test1(std::vector<int> &inorder, std::vector<int> &preorder) {
+	static int idx = 0;
+	static int idxPre = 0;
+	int startIdx = idx;
+	if (inorder[startIdx] != preorder[idxPre]) {
+		for ( ; inorder[startIdx] != preorder[idxPre]; startIdx++);
+
+	}
+	Tree<int>* t = new Tree<int>(preorder[idxPre]);
+
+	idx++;
+	idxPre++;
+	t->left = test1(inorder, preorder);
+	t->right = test1(inorder, preorder);
+}
+
 Tree<int>* restoreBinaryTree(std::vector<int> inorder, std::vector<int> preorder) {
 	Tree<int>* t = nullptr;
 	std::vector<int>::iterator in_it = inorder.begin();
