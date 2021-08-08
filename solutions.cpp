@@ -151,7 +151,7 @@ void parseJSONtoTwoVectors(std::string& str, std::vector<int>& one, std::vector<
 		case ',':
 			switch (sign)
 			{
-			case 1: 
+			case 1:
 				one.push_back(std::stoi(str.substr(lastIdx + 1, idx - (lastIdx + 1))));
 				break;
 			case 2:
@@ -678,30 +678,29 @@ void fillBranch(std::vector<int>::iterator& pre, std::vector<int>::iterator& mar
 	fillBranch(pre, marker, t->left);
 }
 
-//void createNode(std::vector<int>::iterator& it, std::vector<int>::iterator& end, Tree<int>* t) {
-//	if (it != end) {
-//		t = new Tree<int>(*it);
-//		fillBranch();
-//		createNode(it, end, t);
-//	}
-//}
+//Tree<int>* test1(std::vector<int>& inorder, std::vector<int>& preorder, int idx, int& idxPre);
 
+int findIndexLeftInorder(std::vector<int>& inorder, int in, int pre) {
+	while (inorder[in] != pre)
+		in++;
+	return in;
+}
 
-
-Tree<int>* test1(std::vector<int> &inorder, std::vector<int> &preorder) {
-	static int idx = 0;
+Tree<int>* createNode(std::vector<int>& inorder, std::vector<int>& preorder, int idx, int indEnd) {
 	static int idxPre = 0;
-	int startIdx = idx;
-	if (inorder[startIdx] != preorder[idxPre]) {
-		for ( ; inorder[startIdx] != preorder[idxPre]; startIdx++);
+	if (idx > indEnd)
+		return nullptr;
 
-	}
-	Tree<int>* t = new Tree<int>(preorder[idxPre]);
+	Tree<int>* t = new Tree<int>(preorder[idxPre++]);
 
-	idx++;
-	idxPre++;
-	t->left = test1(inorder, preorder);
-	t->right = test1(inorder, preorder);
+	if (idx == indEnd) 
+		return t;
+	
+	int inIndex = findIndexLeftInorder(inorder, idx, t->value);
+
+	t->left = createNode(inorder, preorder, idx, inIndex - 1);
+	t->right = createNode(inorder, preorder, inIndex + 1, indEnd);
+	return t;
 }
 
 Tree<int>* restoreBinaryTree(std::vector<int> inorder, std::vector<int> preorder) {
@@ -740,8 +739,16 @@ int main()
 	std::vector<int> v1;
 	std::vector<int> v2;
 	loadTooVectors(v1, v2, "..\\..\\..\\data\\too_vectors.json");
-	Tree<int>* tree = restoreBinaryTree(v1, v2);
-	//printTree(tree);
+	//std::vector<int> v1({ 4, 2, 1, 5, 3, 6 });
+	//std::vector<int> v2({ 1, 2, 4, 3, 5, 6 });
+	int idxPre = v1.size()-1;
+	int idx = 0;
+	int pastIdx = 0;
+	//Tree<int>* tree = createNode(v1, v2, idx, idxPre, pastIdx);
+	Tree<int>* tree = createNode(v1, v2, idx, idxPre);
+
+	//Tree<int>* tree = restoreBinaryTree(v1, v2);
+	printTree(tree);
 
 	//std::cout << std::boolalpha << isSubtree(t, t2);
 
