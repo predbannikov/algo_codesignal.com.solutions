@@ -6,6 +6,10 @@
 #include "linkedlist.h"
 #include "hashtables.h"
 #include "arcade.h"
+#include "json.hpp"
+
+using json = nlohmann::json;
+
 
 template<typename T>
 struct Tree {
@@ -184,7 +188,7 @@ void parseJSONtoTooVectorsStrings(const std::string& str, std::vector<std::strin
 class JSON;
 class JSONBase {
 public:
-	enum STATE { STATE_OBJECT, STATE_ARRAY, STATE_VALUE_STRING, STATE_VALUE_DEC, STATE_NON } state;
+	enum STATE { STATE_OBJECT, STATE_ARRAY, STATE_VALUE_STRING, STATE_VALUE_NUM, STATE_NON } state;
 	int start;
 	int end;
 	JSONBase(const std::string& str, int startIdx, int endIdx) : valStr(str), start(startIdx), end(endIdx) {}
@@ -202,7 +206,7 @@ public:
 			state = STATE_VALUE_STRING;
 			break;
 		default:
-			state = STATE_VALUE_DEC;
+			state = STATE_VALUE_NUM;
 			break;
 		}
 	}
@@ -247,7 +251,7 @@ public:
 			break;
 		case JSONBase::STATE_VALUE_STRING:
 			break;
-		case JSONBase::STATE_VALUE_DEC:
+		case JSONBase::STATE_VALUE_NUM:
 			break;
 		case JSONBase::STATE_NON:
 			break;
@@ -940,6 +944,7 @@ int main()
 	std::string* test = loadStringJson("..\\..\\..\\data\\too_vectors_strings.json");
 	std::map<std::string, JSONObject>* map;
 	JSON json(*test, 0, test->size());
+	auto j3 = json::parse(*test);
 	map = json.getObjects();
 	//JSONObject jobj = json.getJsonObject();
 	for (auto& item : *map) {
