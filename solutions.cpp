@@ -182,187 +182,6 @@ void loadTooVectors(std::vector<int>& one, std::vector<int>& two, std::string pa
 
 }
 
-void parseJSONtoTooVectorsStrings(const std::string& str, std::vector<std::string> v1, std::vector<std::string>& v2, int& idx, int& lastIdx) {
-}
-
-class JSON;
-class JSONBase {
-public:
-	enum STATE { STATE_OBJECT, STATE_ARRAY, STATE_VALUE_STRING, STATE_VALUE_NUM, STATE_NON } state;
-	int start;
-	int end;
-	JSONBase(const std::string& str, int startIdx, int endIdx) : valStr(str), start(startIdx), end(endIdx) {}
-	const std::string& valStr;
-	void setState(const char ch) {
-		switch (ch)
-		{
-		case '{':
-			state = STATE_OBJECT;
-			break;
-		case '[':
-			state = STATE_ARRAY;
-			break;
-		case '\"':
-			state = STATE_VALUE_STRING;
-			break;
-		default:
-			state = STATE_VALUE_NUM;
-			break;
-		}
-	}
-};
-class JSONArray;
-class JSONObject;
-class JSONValue;
-
-class JSONObject : public JSONBase {
-public:
-	std::string key;
-	int idxStartValue;
-	JSONObject(const std::string& str, int& idx, int endIdx) : JSONBase(str, idx, endIdx) {
-		if (idx >= endIdx)
-			return;
-		start = idx;
-		int lastIdx = idx;
-		char ch = valStr[idx];
-		if (ch == ',')
-			ch = valStr[++idx];
-
-		setState(ch);
-
-
-		switch (state)
-		{
-		case JSONBase::STATE_OBJECT:
-			while (ch != ':') {
-				idx++;
-				if (idx >= endIdx)
-					return;
-				ch = valStr[idx];
-			}
-			idxStartValue = idx;
-			key = valStr.substr(lastIdx + 2, idx - (lastIdx + 2) - 1);
-
-			idx++;
-			parseJSONObject(++idx, endIdx);
-			break;
-		case JSONBase::STATE_ARRAY:
-			parseJSONArray(++idx, endIdx);
-			break;
-		case JSONBase::STATE_VALUE_STRING:
-			break;
-		case JSONBase::STATE_VALUE_NUM:
-			break;
-		case JSONBase::STATE_NON:
-			break;
-		default:
-			break;
-		}
-		end = idx;
-
-	}
-	void parseJSONArray(int& idx, int endIdx) {
-		while (idx < endIdx) {
-			char ch = valStr[idx];
-			switch (ch)
-			{
-			case '[':
-				parseJSONArray(++idx, endIdx);
-				break;
-			case ']':
-				return;
-			}
-			idx++;
-		}
-	}
-
-	void parseJSONObject(int& idx, int endIdx) {
-		while (idx < endIdx) {
-			char ch = valStr[idx];
-			switch (ch)
-			{
-			case '{':
-				parseJSONObject(++idx, endIdx);
-				break;
-			case '}':
-				return;
-			}
-			idx++;
-		}
-	}
-};
-
-class JSONArray : public JSONBase {
-public:
-	JSONArray(const std::string& str, int& idx, int endIdx) : JSONBase(str, idx, endIdx) {
-	}
-};
-class JSONValue {
-
-};
-class JSON : public JSONBase {
-	JSON* json;
-	enum STATE { STATE_OBJECT, STATE_ARRAY, STATE_NON } state = STATE_NON;
-public:
-	JSON(const std::string& str, int start, int end_) : JSONBase(str, start, end_) {}
-	JSONObject getJsonObject(const std::string& val, int& startIdx, int endIdx) {
-		return JSONObject(val, startIdx, endIdx);
-	}
-	bool isJSONObject(const std::string str) {
-		if (!str.empty()) {
-			if (str.front() == '{')
-				return true;
-		}
-		return false;
-	}
-	bool isJSONArray(const std::string str) {
-		if (!str.empty()) {
-			if (str.front() == '[')
-				return true;
-		}
-		return false;
-	}
-
-	std::map<std::string, JSONObject>* getObjects() {
-		std::map<std::string, JSONObject>* map = new std::map<std::string, JSONObject>;
-		if (isJSONObject(valStr)) {
-			int idxStart = 0;
-			int idxEnd = valStr.size();
-			while (idxStart < idxEnd) {
-				JSONObject jobj(valStr, idxStart, idxEnd);	// = getJsonObject(valStr, idxStart, idxEnd);
-				if (!jobj.key.empty())
-					map->insert({ jobj.key, jobj });
-				else
-					break;
-				idxStart++;
-			}
-		}
-		return map;
-	}	
-	std::map<std::string, JSONObject>* getObjects(int &startIdx_, int endIdx_) {
-		std::map<std::string, JSONObject>* map = new std::map<std::string, JSONObject>;
-		if (isJSONObject(valStr)) {
-			while (startIdx_ < endIdx_) {
-				JSONObject jobj(valStr, startIdx_, endIdx_);	// = getJsonObject(valStr, idxStart, idxEnd);
-				if (!jobj.key.empty())
-					map->insert({ jobj.key, jobj });
-				else
-					break;
-				startIdx_++;
-			}
-		}
-		return map;
-	}
-
-	void parseArray(const std::string& str, int& idx) {
-
-	}
-	void next(const std::string& str, int& idx) {
-
-	}
-	int lastIdx = 0;
-};
-
 void parseJSONtoTree(std::string& str, int& idx, Tree<int>*& tree, size_t& lastIndex) {
 	int sign = 0;
 	tree = new Tree<int>;
@@ -888,36 +707,91 @@ void insertBracket(std::string& word, int strtIdx, int width) {
 		std::cout << word << " stop" << std::endl;
 	word.insert(strtIdx + width + 1, 1, ']');
 }
+
+std::string::size_type KMP(const std::string& S, int begin, const std::string& pattern)
+{
+	std::vector<int> pf(pattern.length());
+	pf[0] = 0;
+	for (int k = 0, i = 1; i < pattern.length(); ++i)
+	{
+		while ((k > 0) && (pattern[i] != pattern[k]))
+			k = pf[k - 1];
+		if (pattern[i] == pattern[k])
+			k++;
+		pf[i] = k;
+	}
+
+	for (int k = 0, i = begin; i < S.length(); ++i)
+	{
+		while ((k > 0) && (pattern[k] != S[i]))
+			k = pf[k - 1];
+
+		if (pattern[k] == S[i])std::cout << k << "\t" << i + 1 << "\t"; //для просмотра входов
+		k++;
+
+		if (k == pattern.length())
+			return (i - pattern.length() + 1); //либо продолжаем поиск следующих вхождений
+
+	}
+
+	return (std::string::npos);
+	std::cout << std::string::npos;
+}
+
 std::vector<std::string> findSubstrings(std::vector<std::string> words, std::vector<std::string> parts) {
-	for (auto& str : words) {
-		int idxMaxSize = 0;
-		int maxSize = 0;
+	std::sort(parts.begin(), parts.end());
+	for (auto& word : words) {
+		size_t idxMaxSize = 0;
+		size_t maxSize = 0;
+		std::string strtmp;
+		char chtmp;
 		int position = -1;
-		for (size_t k = 0; k < parts.size(); k++) {
-			std::string part = parts[k];
-			for (size_t i = 0; i < str.size(); i++) {
-				int j = 0;
-				while (i + j < str.size() && j < parts[k].size() && str[i + j] == parts[k][j])
-					j++;
-				if (j > 0 && j == parts[k].size()) {
-					if (j > maxSize) {
-						maxSize = parts[k].size();
-						idxMaxSize = k;
-						position = i;
+		for (size_t p = 0; p < parts.size(); p++) {
+			std::string &pattern = parts[p];
+
+			std::vector<int> pf(pattern.length());
+			pf[0] = 0;
+			for (int k = 0, i = 1; i < pattern.length(); ++i)
+			{
+				while ((k > 0) && (pattern[i] != pattern[k]))
+					k = pf[k - 1];
+				if (pattern[i] == pattern[k])
+					k++;
+				pf[i] = k;
+			}
+			int k = 0;
+			for (size_t i = 0; i < word.length(); i++) {
+				//if (word == "uprise" && pattern == "se")
+					//std::cout << "stop" << std::endl;
+				//int j = 0;
+				//while (i + j < word.size() && j < parts[k].size() && word[i + j] == parts[k][j])
+				//	j++;
+				while ((k > 0) && (pattern[k] != word[i]))
+					k = pf[k - 1];
+				if (pattern[k] == word[i])
+					k++;
+
+				if (k > 0 && k == pattern.length()) {
+					if (k > maxSize) {
+						maxSize = pattern.length();
+						strtmp = pattern;
+						position = i - pattern.length() + 1;
+						chtmp = word[i];
 					}
-					else if (j == maxSize && position > i) {
-						maxSize = parts[k].size();
-						idxMaxSize = k;
-						position = i;
+					else if (k == maxSize && position > i) {
+						maxSize = pattern.length();
+						strtmp = pattern;
+						chtmp = word[i];
+						position = static_cast<int>(i - pattern.length() + 1);
 
 					}
 				}
 			}
 		}
-		if (position == str.size())
+		if (position == word.size())
 			std::cout << "stop";
 		if (position >= 0)
-			insertBracket(str, position, maxSize);
+			insertBracket(word, position, maxSize);
 	}
 	return words;
 }
@@ -948,14 +822,18 @@ int main()
 	for (auto &item : json.items()) {
 		std::cout << item.key() << std::endl;
 		if (item.key() == "input") {
-			for (auto& input : item.value().items()) {
-				std::cout << input.key() << std::endl;
-				if (input.key() == "words")
-					for (auto& words_it : input.value().items())
-						words.push_back(words_it.value());
-				if(input.key() == "parts")
-					for (auto& parts_it : input.value().items()) 
-						parts.push_back(parts_it.value());
+			for (auto& j_input : item.value().items()) {
+				std::cout << j_input.key() << std::endl;
+				if (j_input.key() == "words") {
+					words.reserve(j_input.value().size());
+					for (auto& j_words : j_input.value().items())
+						words.push_back(j_words.value());
+				}
+				if (j_input.key() == "parts") {
+					parts.reserve(j_input.value().size());
+					for (auto& j_parts : j_input.value().items()) 
+						parts.push_back(j_parts.value());
+				}
 				
 			}
 		}
