@@ -925,36 +925,63 @@ std::vector<std::string> findSubstrings(std::vector<std::string> words, std::vec
 
 int main()
 {
-	std::vector<std::string> res = findSubstrings({
-"Norris",
- "besmirch",
- "conscious",
- "halve",
- "impediment",
- "cookbook"
-		}, {
-"WjN",
- "gr",
- "oGtu",
- "Rtae",
- "incPb",
- "Ucy"
-		});
+//	std::vector<std::string> res = findSubstrings({
+//"Norris",
+// "besmirch",
+// "conscious",
+// "halve",
+// "impediment",
+// "cookbook"
+//		}, {
+//"WjN",
+// "gr",
+// "oGtu",
+// "Rtae",
+// "incPb",
+// "Ucy"
+//		});
 
 	std::string* test = loadStringJson("..\\..\\..\\data\\too_vectors_strings.json");
-	std::map<std::string, JSONObject>* map;
-	JSON json(*test, 0, test->size());
-	auto j3 = json::parse(*test);
-	map = json.getObjects();
-	//JSONObject jobj = json.getJsonObject();
-	for (auto& item : *map) {
-		std::cout << item.first << " " << std::endl;
-		if (item.first == "input") {
-			std::map<std::string, JSONObject>* mapInput;
-			mapInput = json.getObjects(item.second.idxStartValue, item.second.end);
-			std::cout << "stop";
+
+	std::vector<std::string> words, parts, output;
+	auto json = json::parse(*test);
+	for (auto &item : json.items()) {
+		std::cout << item.key() << std::endl;
+		if (item.key() == "input") {
+			for (auto& input : item.value().items()) {
+				std::cout << input.key() << std::endl;
+				if (input.key() == "words")
+					for (auto& words_it : input.value().items())
+						words.push_back(words_it.value());
+				if(input.key() == "parts")
+					for (auto& parts_it : input.value().items()) 
+						parts.push_back(parts_it.value());
+				
+			}
+		}
+		if (item.key() == "output") {
+			for (auto& j_output : item.value().items()) 
+				output.push_back(j_output.value());
 		}
 	}
+	std::vector<std::string> result = findSubstrings(words, parts);
+	for (size_t i = 0; i < result.size(); i++) {
+		if (result[i] != output[i])
+			std::cerr << "error" << std::endl;
+	}
+
+	std::cout << "stop" << std::endl;
+
+	//map = json.getObjects();
+	//JSONObject jobj = json.getJsonObject();
+	//for (auto& item : *map) {
+	//	std::cout << item.first << " " << std::endl;
+	//	if (item.first == "input") {
+	//		std::map<std::string, JSONObject>* mapInput;
+	//		mapInput = json.getObjects(item.second.idxStartValue, item.second.end);
+	//		std::cout << "stop";
+	//	}
+	//}
 	//for (auto& str : res)
 	//	std::cout << str << std::endl;
 	//Tree<int>* t = strJsonToTree(loadStringJson("..\\..\\..\\data\\tree1.json"));
