@@ -701,12 +701,6 @@ findSubstrings(words, parts) = ["Apple", "Me[lon]", "Or[a]nge", "Water[mel]on"].
 
 While "Watermelon" contains three substrings from the parts array, "a", "mel", and "lon", "mel" is the longest substring that appears first in the string.*/
 
-void insertBracket(std::string& word, int strtIdx, int width) {
-	word.insert(strtIdx, 1, '[');
-	if (strtIdx + width + 1 > word.size())
-		std::cout << word << " stop" << std::endl;
-	word.insert(strtIdx + width + 1, 1, ']');
-}
 
 std::string::size_type KMP(const std::string& S, int begin, const std::string& pattern)
 {
@@ -738,8 +732,78 @@ std::string::size_type KMP(const std::string& S, int begin, const std::string& p
 	std::cout << std::string::npos;
 }
 
+void insertBracket(std::string& word, int strtIdx, int width) {
+	word.insert(strtIdx, 1, '[');
+	word.insert(strtIdx + width + 1, 1, ']');
+}
+
 std::vector<std::string> findSubstrings(std::vector<std::string> words, std::vector<std::string> parts) {
-	std::sort(parts.begin(), parts.end());
+	//std::map<std::string, int> map;
+	std::unordered_map<std::string, int> map;
+	for (std::string& curStr : parts) {
+		for (size_t i = 1; i <= curStr.size(); i++) {
+			const std::string& s = curStr.substr(0, i);
+			if (i == curStr.size())
+				map[curStr] = 1;
+			else if(map.find(s) == map.end())
+				map[s] = 0;
+		}
+	}
+
+	for (auto& word : words) {
+		size_t idxMaxSize = 0;
+		size_t maxSize = 0;
+		std::string strtmp;
+		char chtmp;
+		int position = -1;
+		for (size_t i = 0; i < word.length(); i++) {
+			for (size_t j = 1; j <= word.length() - i; j++) {		// Ширина подстроки
+				const std::string& sub = word.substr(i, j);
+				auto val = map.find(sub);
+
+				if (val != map.end()) {
+					if (val->second == 1) {
+						if (val->first.length() > maxSize) {
+							maxSize = val->first.length();
+							position = i;
+						}
+						else if (val->first.length() == maxSize && position > i) {
+							maxSize = val->first.length();
+							position = i;
+						}
+					}
+				}
+				else 
+					break;
+			}
+		}
+		if (position >= 0)
+			insertBracket(word, position, maxSize);
+	}
+	return words;
+}
+
+std::vector<std::string> findSubstringsV1(std::vector<std::string> words, std::vector<std::string> parts) {
+	//std::sort(parts.begin(), parts.end());
+	std::map<std::string, int> map;
+	for (std::string &curStr : parts) {
+		for (size_t i = 0; i < curStr.size(); i++) {
+			if (i == curStr.size() - 1)
+				map[curStr] = 1;
+			else
+				map[curStr.substr(0, i)] = 0;
+		}
+	}
+
+	int count = 0;
+	//for (auto& it = map.begin(); it != set.end(); it++) {
+	//	std::cout << *it << std::endl;
+	//}
+	//std::for_each(set.begin(), set.end(), []() {
+	//	//count++;
+	//	//std::cout << count << "stop" << std::endl;
+	//});
+
 	for (auto& word : words) {
 		size_t idxMaxSize = 0;
 		size_t maxSize = 0;
@@ -747,7 +811,7 @@ std::vector<std::string> findSubstrings(std::vector<std::string> words, std::vec
 		char chtmp;
 		int position = -1;
 		for (size_t p = 0; p < parts.size(); p++) {
-			std::string &pattern = parts[p];
+			std::string& pattern = parts[p];
 
 			std::vector<int> pf(pattern.length());
 			pf[0] = 0;
@@ -799,27 +863,12 @@ std::vector<std::string> findSubstrings(std::vector<std::string> words, std::vec
 
 int main()
 {
-//	std::vector<std::string> res = findSubstrings({
-//"Norris",
-// "besmirch",
-// "conscious",
-// "halve",
-// "impediment",
-// "cookbook"
-//		}, {
-//"WjN",
-// "gr",
-// "oGtu",
-// "Rtae",
-// "incPb",
-// "Ucy"
-//		});
 
 	std::string* test = loadStringJson("..\\..\\..\\data\\too_vectors_strings.json");
 
 	std::vector<std::string> words, parts, output;
 	auto json = json::parse(*test);
-	for (auto &item : json.items()) {
+	for (auto& item : json.items()) {
 		std::cout << item.key() << std::endl;
 		if (item.key() == "input") {
 			for (auto& j_input : item.value().items()) {
@@ -831,21 +880,23 @@ int main()
 				}
 				if (j_input.key() == "parts") {
 					parts.reserve(j_input.value().size());
-					for (auto& j_parts : j_input.value().items()) 
+					for (auto& j_parts : j_input.value().items())
 						parts.push_back(j_parts.value());
 				}
-				
+
 			}
 		}
 		if (item.key() == "output") {
-			for (auto& j_output : item.value().items()) 
+			for (auto& j_output : item.value().items())
 				output.push_back(j_output.value());
 		}
 	}
 	std::vector<std::string> result = findSubstrings(words, parts);
 	for (size_t i = 0; i < result.size(); i++) {
-		if (result[i] != output[i])
-			std::cerr << "error" << std::endl;
+		if (result[i] != output[i]) {
+			std::cerr << "error " << result[i] << " " << output[i] << std::endl;
+			throw;
+		}
 	}
 
 	std::cout << "stop" << std::endl;
