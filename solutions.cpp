@@ -1,5 +1,8 @@
 ﻿// solutions.cpp : Defines the entry point for the application.
 //
+#include "rapidjson/document.h"
+#include "rapidjson/writer.h"
+#include "rapidjson/stringbuffer.h"
 
 #include "solutions.h"
 #include "arrays.h"
@@ -8,7 +11,12 @@
 #include "arcade.h"
 #include "json.hpp"
 
+
+
+using namespace rapidjson;
+
 using json = nlohmann::json;
+
 
 
 template<typename T>
@@ -1005,7 +1013,7 @@ Tree<int>* searchParentNode(Tree<int>* t, int value) {
 
 /* Нужно найти который узел будем вставлять на место удалённого, начинаем поиск с лева(максимальные все подходят) и справа(минимальные)*/
 Tree<int>* delNode(Tree<int>* t) {
-	std::cout << "delete current node" << std::endl;
+	//std::cout << "delete current node" << std::endl;
 	//printTree(t);
 	Tree<int>* node;
 	if (t->left == nullptr) {
@@ -1054,50 +1062,98 @@ Tree<int>* deleteFromBST(Tree<int>* t, std::vector<int> queries) {
 	for (auto& i : queries) {
 		if (tree == nullptr)
 			return t;
-		std::cout << "delete N=" << i << std::endl;
+		//std::cout << "delete N=" << i << std::endl;
 		tree = deleteNode(tree, i);
 		//printTree(tree);
-		std::cout << "-------" << std::endl;
+		//std::cout << "-------" << std::endl;
 	}
 	return t;
 }
 
+void countNodes(Tree<int>* t, int &counter) {
+	counter++;
+	if (t != nullptr) {
+		countNodes(t->left, counter);
+		countNodes(t->right, counter);
+	}
+}
+
 int main()
 {
-	std::string* str = loadStringJson("..\\..\\..\\data\\test-9.json");
-	//std::string strTree;
-	std::string strValues;
+	std::string* strTree = loadStringJson("..\\..\\..\\data\\test-9.json");
+
 	std::vector<int> values;
-	auto js = json::parse(*str);
-
-	json j_input;
-	json j_output;
-	for (auto& item : js.items()) {
-		std::cout << item.key() << std::endl;
-		if (item.key() == "input") {
-			j_input = item.value();
-
-		//	//<< jObj.dump();
-		//	//std::cout << strTree;
-		}
-		if (item.key() == "output")
-			j_output = item.value();
-		//	strValues = item.value().dump();
-	}
-	json j_tree, j_queries;
-	for (auto& item_input : j_input.items()) {
-		std::cout << item_input.key() << std::endl;
-		if (item_input.key() == "t")
-			j_tree = item_input.value();
-		if (item_input.key() == "queries")
-			j_queries = item_input.value();
-	}
 	Tree<int>* tree;
-	std::string testStr = j_tree.dump();
+	Tree<int>* treeCheck;
+	Document d;
+
+	d.Parse(strTree->c_str());
+	if (d.IsObject()) {
+		for (auto& j_input : d.GetObject()) {
+			std::string name = j_input.name.GetString();
+			std::cout << name << std::endl;
+			if (name == "input") {
+				for (auto& it_t : j_input.value.GetObject()) {
+					std::string key = it_t.name.GetString();
+					std::cout << key << std::endl;
+					if (key == "t") {
+						StringBuffer sb;
+						Writer<StringBuffer> writer(sb);
+						it_t.value.Accept(writer);
+						std::string news = sb.GetString();
+						tree = strJsonToTree(&news);
+						int count = 0; 
+						countNodes(tree, count);
+						std::cout << "source tree count nodes" << count << std::endl;
+					}
+					if (key == "queries") {
+						for (auto& it_values : it_t.value.GetArray()) {
+							values.push_back(it_values.GetInt());
+						}
+					}
+				}
+			}
+			if (name == "output") {
+				StringBuffer sb;
+				Writer<StringBuffer> writer(sb);
+				j_input.value.Accept(writer);
+				std::string news = sb.GetString();
+				treeCheck = strJsonToTree(&news);
+				int count = 0;
+				countNodes(treeCheck, count);
+				std::cout << "check output count=" << count << std::endl;
+
+			}
+		}
+	}
+
 	//printTree(tree);
 	std::cout << "-----------------------------------------------------" << std::endl;
-	std::cout << deleteFromBST(tree, { 1, 2, 3, 5 });
+	std::cout << deleteFromBST(tree, values);
 
+	int count = 0;
+	countNodes(tree, count);
+	std::cout << std::endl << "prep tree nodes count=" << count << std::endl;
+
+
+	std::stack<std::pair<Tree<int>*, Tree<int>*>> stack;
+	stack.push({ tree, treeCheck });
+	while (!stack.empty()) {
+		auto &[t, c] = stack.top();
+		stack.pop();
+		if (!t && !c)
+			continue;
+		if (!t || !c)
+			std::cout << "stop" << std::endl;
+		if (t->value == c->value) {
+			stack.push({ t->left, c->left });
+			stack.push({ t->right, c->right });
+		}
+		else {
+			std::cout << "stop" << std::endl;
+		}
+	}
+	
 
 
 	//std::string* test = loadStringJson("..\\..\\..\\data\\too_vectors_strings.json");
