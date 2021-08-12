@@ -55,7 +55,13 @@ void traversalTree(std::vector<std::string>& v, Tree<int>* tree, int lvl, int i1
 }
 
 void printTree(Tree<int>* tree) {
-	std::vector<std::string> pic(30, std::string(WIDTH, ' '));
+	if (tree == nullptr) {
+		std::cout << std::string(HALF_WIDTH, ' ') << "nill" << std::endl;
+		return;
+	}
+	int height = 0;
+	heightTree(tree, 0, height);
+	std::vector<std::string> pic((height + 1) * 2 + 1, std::string(WIDTH, ' '));
 	traversalTree(pic, tree, 1, HALF_WIDTH);
 	for (size_t i = 0; i < pic.size(); i++) {
 		std::cout << pic[i] << std::endl;
@@ -745,7 +751,7 @@ std::vector<std::string> findSubstrings(std::vector<std::string> words, std::vec
 			const std::string& s = curStr.substr(0, i);
 			if (i == curStr.size())
 				map[curStr] = 1;
-			else if(map.find(s) == map.end())
+			else if (map.find(s) == map.end())
 				map[s] = 0;
 		}
 	}
@@ -773,7 +779,7 @@ std::vector<std::string> findSubstrings(std::vector<std::string> words, std::vec
 						}
 					}
 				}
-				else 
+				else
 					break;
 			}
 		}
@@ -786,7 +792,7 @@ std::vector<std::string> findSubstrings(std::vector<std::string> words, std::vec
 std::vector<std::string> findSubstringsV1(std::vector<std::string> words, std::vector<std::string> parts) {
 	//std::sort(parts.begin(), parts.end());
 	std::map<std::string, int> map;
-	for (std::string &curStr : parts) {
+	for (std::string& curStr : parts) {
 		for (size_t i = 0; i < curStr.size(); i++) {
 			if (i == curStr.size() - 1)
 				map[curStr] = 1;
@@ -861,45 +867,274 @@ std::vector<std::string> findSubstringsV1(std::vector<std::string> words, std::v
 }
 
 
+/*A tree is considered a binary search tree (BST) if for each of its nodes the following is true:
+
+The left subtree of a node contains only nodes with keys less than the node's key.
+The right subtree of a node contains only nodes with keys greater than the node's key.
+Both the left and the right subtrees must also be binary search trees.
+Removing a value x from a BST t is done in the following way:
+
+If there is no x in t, nothing happens;
+Otherwise, let t' be a subtree of t such that t'.value = x.
+If t' has a left subtree, remove the rightmost node from it and put it at the root of t';
+Otherwise, remove the root of t' and its right subtree becomes the new t's root.
+For example, removing 4 from the following tree has no effect because there is no such value in the tree:
+
+	5
+   / \
+  2   6
+ / \   \
+1   3   8
+	   /
+	  7
+Removing 5 causes 3 (the rightmost node in left subtree) to move to the root:
+
+	3
+   / \
+  2   6
+ /     \
+1       8
+	   /
+	  7
+And removing 6 after that creates the following tree:
+
+	3
+   / \
+  2   8
+ /   /
+1   7
+You're given a binary search tree t and an array of numbers queries. Your task is to remove queries[0], queries[1], etc., from t, step by step, following the algorithm above. Return the resulting BST.
+
+Example
+
+For
+
+t = {
+	"value": 5,
+	"left": {
+		"value": 2,
+		"left": {
+			"value": 1,
+			"left": null,
+			"right": null
+		},
+		"right": {
+			"value": 3,
+			"left": null,
+			"right": null
+		}
+	},
+	"right": {
+		"value": 6,
+		"left": null,
+		"right": {
+			"value": 8,
+			"left": {
+				"value": 7,
+				"left": null,
+				"right": null
+			},
+			"right": null
+		}
+	}
+}
+and queries = [4, 5, 6], the output should be
+
+deleteFromBST(t, queries) = {
+	"value": 3,
+	"left": {
+		"value": 2,
+		"left": {
+			"value": 1,
+			"left": null,
+			"right": null
+		},
+		"right": null
+	},
+	"right": {
+		"value": 8,
+		"left": {
+			"value": 7,
+			"left": null,
+			"right": null
+		},
+		"right": null
+	}
+}
+*/
+
+Tree<int>* cutMin(Tree<int>* t) {
+	if (t->left->left == nullptr) {
+		Tree<int>* node = t->left;
+		t->left = nullptr;
+		return node;
+	}
+	cutMin(t->left);
+}
+
+Tree<int>* cutMax(Tree<int>* t) {
+	if (t->right->right == nullptr) {
+		Tree<int>* node = t->right;
+		t->right = nullptr;
+		return node;
+	}
+	cutMax(t->right);
+}
+
+Tree<int>* searchParentNode(Tree<int>* t, int value) {
+	if (t == nullptr)
+		return nullptr;
+	Tree<int>* node;
+	if (t->value < value)
+		node = t->right;
+	else
+		node = t->left;
+
+	while (node && node->value != value) {
+		t = node;
+		if (node->value < value)
+			node = node->right;
+		else if (node->value >= value)
+			node = node->left;
+	}
+
+	if (node && node->value == value)
+		return t;
+	return nullptr;
+}
+
+/* Нужно найти который узел будем вставлять на место удалённого, начинаем поиск с лева(максимальные все подходят) и справа(минимальные)*/
+Tree<int>* delNode(Tree<int>* t) {
+	std::cout << "delete current node" << std::endl;
+	//printTree(t);
+	Tree<int>* node;
+	if (t->left == nullptr) {
+		node = t->right;
+		delete t;
+	}
+	else if (t->left->right == nullptr) {
+		node = t->left;
+		node->right = t->right;
+	}
+	else {
+		node = cutMax(t->left);
+		node->left = t->left;
+		node->right = t->right;
+		delete t;
+	}
+	return node;
+}
+
+Tree<int>* deleteNode(Tree<int>* t, int value) {
+	if (t->value == value) {
+		t = delNode(t);
+		return t;
+	}
+	else {
+		Tree<int>* parendNodeToDelete = searchParentNode(t, value);
+		if (parendNodeToDelete == nullptr)
+			return t;
+		Tree<int>* node;
+		if (value < parendNodeToDelete->value) {
+			node = delNode(parendNodeToDelete->left);
+			parendNodeToDelete->left = node;
+		}
+		else {
+			node = delNode(parendNodeToDelete->right);
+			parendNodeToDelete->right = node;
+		}
+		return t;
+	}
+}
+
+Tree<int>* deleteFromBST(Tree<int>* t, std::vector<int> queries) {
+
+
+	Tree<int>* tree = t;
+	for (auto& i : queries) {
+		if (tree == nullptr)
+			return t;
+		std::cout << "delete N=" << i << std::endl;
+		tree = deleteNode(tree, i);
+		//printTree(tree);
+		std::cout << "-------" << std::endl;
+	}
+	return t;
+}
+
 int main()
 {
+	std::string* str = loadStringJson("..\\..\\..\\data\\test-9.json");
+	//std::string strTree;
+	std::string strValues;
+	std::vector<int> values;
+	auto js = json::parse(*str);
 
-	std::string* test = loadStringJson("..\\..\\..\\data\\too_vectors_strings.json");
-
-	std::vector<std::string> words, parts, output;
-	auto json = json::parse(*test);
-	for (auto& item : json.items()) {
+	json j_input;
+	json j_output;
+	for (auto& item : js.items()) {
 		std::cout << item.key() << std::endl;
 		if (item.key() == "input") {
-			for (auto& j_input : item.value().items()) {
-				std::cout << j_input.key() << std::endl;
-				if (j_input.key() == "words") {
-					words.reserve(j_input.value().size());
-					for (auto& j_words : j_input.value().items())
-						words.push_back(j_words.value());
-				}
-				if (j_input.key() == "parts") {
-					parts.reserve(j_input.value().size());
-					for (auto& j_parts : j_input.value().items())
-						parts.push_back(j_parts.value());
-				}
+			j_input = item.value();
 
-			}
+		//	//<< jObj.dump();
+		//	//std::cout << strTree;
 		}
-		if (item.key() == "output") {
-			for (auto& j_output : item.value().items())
-				output.push_back(j_output.value());
-		}
+		if (item.key() == "output")
+			j_output = item.value();
+		//	strValues = item.value().dump();
 	}
-	std::vector<std::string> result = findSubstrings(words, parts);
-	for (size_t i = 0; i < result.size(); i++) {
-		if (result[i] != output[i]) {
-			std::cerr << "error " << result[i] << " " << output[i] << std::endl;
-			throw;
-		}
+	json j_tree, j_queries;
+	for (auto& item_input : j_input.items()) {
+		std::cout << item_input.key() << std::endl;
+		if (item_input.key() == "t")
+			j_tree = item_input.value();
+		if (item_input.key() == "queries")
+			j_queries = item_input.value();
 	}
+	Tree<int>* tree;
+	std::string testStr = j_tree.dump();
+	//printTree(tree);
+	std::cout << "-----------------------------------------------------" << std::endl;
+	std::cout << deleteFromBST(tree, { 1, 2, 3, 5 });
 
-	std::cout << "stop" << std::endl;
+
+
+	//std::string* test = loadStringJson("..\\..\\..\\data\\too_vectors_strings.json");
+
+	//std::vector<std::string> words, parts, output;
+	//auto json = json::parse(*test);
+	//for (auto& item : json.items()) {
+	//	std::cout << item.key() << std::endl;
+	//	if (item.key() == "input") {
+	//		for (auto& j_input : item.value().items()) {
+	//			std::cout << j_input.key() << std::endl;
+	//			if (j_input.key() == "words") {
+	//				words.reserve(j_input.value().size());
+	//				for (auto& j_words : j_input.value().items())
+	//					words.push_back(j_words.value());
+	//			}
+	//			if (j_input.key() == "parts") {
+	//				parts.reserve(j_input.value().size());
+	//				for (auto& j_parts : j_input.value().items())
+	//					parts.push_back(j_parts.value());
+	//			}
+
+	//		}
+	//	}
+	//	if (item.key() == "output") {
+	//		for (auto& j_output : item.value().items())
+	//			output.push_back(j_output.value());
+	//	}
+	//}
+	//std::vector<std::string> result = findSubstrings(words, parts);
+	//for (size_t i = 0; i < result.size(); i++) {
+	//	if (result[i] != output[i]) {
+	//		std::cerr << "error " << result[i] << " " << output[i] << std::endl;
+	//		throw;
+	//	}
+	//}
+
 
 	//map = json.getObjects();
 	//JSONObject jobj = json.getJsonObject();
