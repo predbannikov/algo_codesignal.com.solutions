@@ -39,38 +39,46 @@ void heightTree(Tree<int>* tree, int lvl, int& max) {
 	return;
 }
 
-#define WIDTH 40
+#define WIDTH 200
 #define HALF_WIDTH (WIDTH/2)
 
-void traversalTree(std::vector<std::string>& v, Tree<int>* tree, int lvl, int i1) {
+void traversalTree(std::vector<std::string>& v, Tree<int>* tree, int lvl, int i1, int maxLvl = 0) {
 
+	if (maxLvl != 0 && lvl >= maxLvl) {
+		return;
+	}
 	std::string val = std::to_string(tree->value);
-	for (size_t i = i1, j = 0; i < i1 + val.size(); i++, j++)
+	int valSize = val.length();
+	int curPos = i1;
+	if (i1 - (valSize / 2) >= 0)
+		curPos = i1 - valSize / 2;
+	for (size_t i = curPos, j = 0; i < curPos + val.size(); i++, j++)
 		v[lvl * 2][i] = val[j];
 	int diff;
 	if (tree->left != nullptr) {
 		diff = HALF_WIDTH / pow(2, lvl);
-		v[(lvl * 2) + 1][i1 - diff / 2] = '/';
-		traversalTree(v, tree->left, lvl + 1, i1 - diff);
+		v[(lvl * 2) + 1][curPos + (valSize / 2) - diff / 2] = '/';
+		traversalTree(v, tree->left, lvl + 1, i1 - diff, maxLvl);
 
 	}
 	if (tree->right != nullptr) {
 		diff = HALF_WIDTH / pow(2, lvl);
-		v[(lvl * 2) + 1][i1 + diff / 2] = '\\';
-		traversalTree(v, tree->right, lvl + 1, i1 + diff);
+		v[(lvl * 2) + 1][curPos + (valSize / 2) + diff / 2] = '\\';
+		traversalTree(v, tree->right, lvl + 1, i1 + diff, maxLvl);
 	}
 	return;
 }
 
-void printTree(Tree<int>* tree) {
+void printTree(Tree<int>* tree, int maxLvl = 0) {
 	if (tree == nullptr) {
 		std::cout << std::string(HALF_WIDTH, ' ') << "nill" << std::endl;
 		return;
 	}
-	int height = 0;
-	heightTree(tree, 0, height);
+	int height = maxLvl;
+	if (height == 0)
+		heightTree(tree, 0, height);
 	std::vector<std::string> pic((height + 1) * 2 + 1, std::string(WIDTH, ' '));
-	traversalTree(pic, tree, 1, HALF_WIDTH);
+	traversalTree(pic, tree, 1, HALF_WIDTH, maxLvl);
 	for (size_t i = 0; i < pic.size(); i++) {
 		std::cout << pic[i] << std::endl;
 	}
@@ -993,17 +1001,17 @@ Tree<int>* searchParentNode(Tree<int>* t, int value) {
 	if (t == nullptr)
 		return nullptr;
 	Tree<int>* node;
-	if (t->value < value)
-		node = t->right;
-	else
+	if (value <= t->value)
 		node = t->left;
+	else
+		node = t->right;
 
 	while (node && node->value != value) {
 		t = node;
-		if (node->value < value)
-			node = node->right;
-		else if (node->value >= value)
+		if (value <= node->value)
 			node = node->left;
+		else
+			node = node->right;
 	}
 
 	if (node && node->value == value)
@@ -1011,10 +1019,15 @@ Tree<int>* searchParentNode(Tree<int>* t, int value) {
 	return nullptr;
 }
 
-/* Нужно найти который узел будем вставлять на место удалённого, начинаем поиск с лева(максимальные все подходят) и справа(минимальные)*/
+/* Нужно найти который узел будем вставлять на место удалённого, начинаем поиск с лева(максимальные все подходят) и справа(минимальные) BST*/
 Tree<int>* delNode(Tree<int>* t) {
 	//std::cout << "delete current node" << std::endl;
 	//printTree(t);
+	//if (t->value == 926273575) {
+	//	printTree(t, 5);
+	//	std::cout << "stop" << std::endl;
+	//}
+
 	Tree<int>* node;
 	if (t->left == nullptr) {
 		node = t->right;
@@ -1023,6 +1036,7 @@ Tree<int>* delNode(Tree<int>* t) {
 	else if (t->left->right == nullptr) {
 		node = t->left;
 		node->right = t->right;
+		delete t;
 	}
 	else {
 		node = cutMax(t->left);
@@ -1034,53 +1048,136 @@ Tree<int>* delNode(Tree<int>* t) {
 }
 
 Tree<int>* deleteNode(Tree<int>* t, int value) {
-	if (t->value == value) {
+	if (t->value == value) 
 		t = delNode(t);
-		return t;
-	}
 	else {
 		Tree<int>* parendNodeToDelete = searchParentNode(t, value);
 		if (parendNodeToDelete == nullptr)
 			return t;
-		Tree<int>* node;
-		if (value < parendNodeToDelete->value) {
-			node = delNode(parendNodeToDelete->left);
-			parendNodeToDelete->left = node;
+		if (value <= parendNodeToDelete->value) 
+			parendNodeToDelete->left = delNode(parendNodeToDelete->left);
+		else 
+			parendNodeToDelete->right = delNode(parendNodeToDelete->right);
+	}
+	return t;
+}
+
+Tree<int>*_findMax(Tree<int>* n)
+{
+	if (n == NULL)
+		return NULL;
+	while (n->right)
+		n = n->right;
+	return n;
+}
+
+void _remove(Tree<int>*&t, int val) {
+	if (t == nullptr)
+		return;
+	if (val < t->value)
+		_remove(t->left, val);
+	else if (val > t->value)
+		_remove(t->right, val);
+	else {
+		if (t->left == nullptr) {
+			Tree<int>* old = t;
+			t = old->right;
+			delete old;
+		}
+		else if (t->right == nullptr) {
+			Tree<int>* old = t;
+			t = old->left;
+			delete old;
 		}
 		else {
-			node = delNode(parendNodeToDelete->right);
-			parendNodeToDelete->right = node;
+			Tree<int>* m = _findMax(t->left);
+			t->value = m->value;
+			_remove(t->left, m->value);
 		}
-		return t;
 	}
 }
 
 Tree<int>* deleteFromBST(Tree<int>* t, std::vector<int> queries) {
 
 
-	Tree<int>* tree = t;
 	for (auto& i : queries) {
-		if (tree == nullptr)
+		if (t == nullptr)
 			return t;
 		//std::cout << "delete N=" << i << std::endl;
-		tree = deleteNode(tree, i);
-		//printTree(tree);
+		//t = deleteNode(t, i);
+		_remove(t, i);
+		//printTree(t);
 		//std::cout << "-------" << std::endl;
 	}
 	return t;
 }
 
-void countNodes(Tree<int>* t, int &counter) {
-	counter++;
+int countNodes(Tree<int>* t, int& counter) {
 	if (t != nullptr) {
 		countNodes(t->left, counter);
 		countNodes(t->right, counter);
+		counter++;
 	}
+	return counter;
+}
+
+void checkSequenceTree(Tree<int>* t, int& value) {
+	if (t == nullptr)
+		return;
+	if (t->left)
+		checkSequenceTree(t->left, value);
+
+	if (value >= t->value)
+		std::cout << "stop" << std::endl;
+	value = t->value;
+
+	if (t->right)
+		checkSequenceTree(t->right, value);
+}
+
+int minElementTree(Tree<int>* t) {
+	while (t->left)
+		t = t->left;
+	return t->value;
+}
+
+void treeToArray(Tree<int>* t, std::vector<int>& v) {
+	if (t == nullptr)
+		return;
+	if (t->left)
+		treeToArray(t->left, v);
+	v.push_back(t->value);
+	if (t->right)
+		treeToArray(t->right, v);
+}
+
+bool checkRepeatValueTree(Tree<int>* t) {
+	std::vector<int> v;
+	treeToArray(t, v);
+	for (size_t i = 0; i < v.size(); i++) {
+		for (size_t j = i + 1; j < v.size() - 1; j++)
+			if (v[i] == v[j])
+				return true;
+	}
+	return false;
 }
 
 int main()
 {
 	std::string* strTree = loadStringJson("..\\..\\..\\data\\test-9.json");
+	//for (int i = 0; i < 11; i++) {
+	//	std::cout << "N=" << i << std::endl;
+		//Tree<int>* t = strJsonToTree(loadStringJson("..\\..\\..\\data\\tree2.json"));
+		//t = deleteFromBST(t, { 2, 3, 0, 5 });
+		//printTree(t);
+		//int lastValue2 = 0;
+		//checkSequenceTree(t, lastValue2);
+	//	printTree(t);
+	//	t = deleteFromBST(t, { i });
+	//	printTree(t);
+	//	std::cout << "------------------------------------------------------------------------------------------------------------------" << std::endl;
+	//}
+
 
 	std::vector<int> values;
 	Tree<int>* tree;
@@ -1091,20 +1188,15 @@ int main()
 	if (d.IsObject()) {
 		for (auto& j_input : d.GetObject()) {
 			std::string name = j_input.name.GetString();
-			std::cout << name << std::endl;
 			if (name == "input") {
 				for (auto& it_t : j_input.value.GetObject()) {
 					std::string key = it_t.name.GetString();
-					std::cout << key << std::endl;
 					if (key == "t") {
 						StringBuffer sb;
 						Writer<StringBuffer> writer(sb);
 						it_t.value.Accept(writer);
 						std::string news = sb.GetString();
 						tree = strJsonToTree(&news);
-						int count = 0; 
-						countNodes(tree, count);
-						std::cout << "source tree count nodes" << count << std::endl;
 					}
 					if (key == "queries") {
 						for (auto& it_values : it_t.value.GetArray()) {
@@ -1119,41 +1211,88 @@ int main()
 				j_input.value.Accept(writer);
 				std::string news = sb.GetString();
 				treeCheck = strJsonToTree(&news);
-				int count = 0;
-				countNodes(treeCheck, count);
-				std::cout << "check output count=" << count << std::endl;
 
 			}
 		}
 	}
 
-	//printTree(tree);
+	std::stack<Tree<int>*> stackTmp({ tree });
+	while (!stackTmp.empty()) {
+		Tree<int>* t = stackTmp.top();
+		stackTmp.pop();
+		//if (t->value == 926368913) {
+		if (t->value == 926563538) {
+			printTree(t, 5);
+		}
+		if (t->left) {
+			stackTmp.push({ t->left });
+			if (t->right)
+				stackTmp.push({ t->right });
+		}
+
+	}
+
+	//int lastValue = minElementTree(tree)-1;
+	//checkSequenceTree(tree, lastValue);
+	//std::cout << std::boolalpha << checkRepeatValueTree(tree);
+
+	printTree(tree, 6);
 	std::cout << "-----------------------------------------------------" << std::endl;
-	std::cout << deleteFromBST(tree, values);
+	tree = deleteFromBST(tree, values);
+
+	//lastValue = minElementTree(tree) - 1;
+	//checkSequenceTree(tree, lastValue);
+
+	//std::stack<Tree<int>*> stackV2({ tree });
+	//while (!stackV2.empty()) {
+	//	Tree<int>* t = stackV2.top();
+	//	stackV2.pop();
+	//	if (lastValue >= t->value)
+	//		std::cout << "stop" << std::endl;
+	//	if (t->left)
+	//		stackV2.push(t->left);
+	//	if (t->right)
+	//		stackV2.push(t->right);
+	//	lastValue = t->value;
+	//}
 
 	int count = 0;
-	countNodes(tree, count);
+	std::cout << countNodes(tree, count) << std::endl;
+	count = 0;
+	std::cout << countNodes(treeCheck, count) << std::endl;
 	std::cout << std::endl << "prep tree nodes count=" << count << std::endl;
 
+	
 
 	std::stack<std::pair<Tree<int>*, Tree<int>*>> stack;
 	stack.push({ tree, treeCheck });
+	count = 0;
 	while (!stack.empty()) {
-		auto &[t, c] = stack.top();
+		count++;
+		const auto [t_my, t_check] = stack.top();
 		stack.pop();
-		if (!t && !c)
+		if (!t_my && !t_check)
 			continue;
-		if (!t || !c)
-			std::cout << "stop" << std::endl;
-		if (t->value == c->value) {
-			stack.push({ t->left, c->left });
-			stack.push({ t->right, c->right });
+		if (t_my->value == t_check->value) {
+			if (t_my->left == nullptr && t_my->left != t_check->left) {
+				//std::cout << "stop" << std::endl;
+				return -1;
+			}
+			stack.push({ t_my->left, t_check->left });
+			if (t_my->right == nullptr && t_my->right != t_check->right) {
+				//std::cout << "stop" << std::endl;
+				return -1;
+			}
+			stack.push({ t_my->right, t_check->right });
 		}
 		else {
+			printTree(t_my, 5);
+			printTree(t_check, 5);
 			std::cout << "stop" << std::endl;
+			return -1;
 		}
 	}
-	
+
 
 
 	//std::string* test = loadStringJson("..\\..\\..\\data\\too_vectors_strings.json");

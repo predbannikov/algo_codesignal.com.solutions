@@ -1,9 +1,13 @@
 {
-  "value": 2,
+  "value": 3,
   "left": {
-    "value": 1,
+    "value": 2,
     "left": null,
     "right": null
   },
-  "right": null
+  "right": {
+    "value": 5,
+    "left": null,
+    "right": null
+  }
 }
