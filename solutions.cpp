@@ -39,7 +39,7 @@ void heightTree(Tree<int>* tree, int lvl, int& max) {
 	return;
 }
 
-#define WIDTH 200
+#define WIDTH 150
 #define HALF_WIDTH (WIDTH/2)
 
 void traversalTree(std::vector<std::string>& v, Tree<int>* tree, int lvl, int i1, int maxLvl = 0) {
@@ -1071,6 +1071,14 @@ Tree<int>*_findMax(Tree<int>* n)
 	return n;
 }
 
+Tree<int>* _removeMax(Tree<int>* t) {
+	if (t->right == nullptr)
+		return t->left;
+	else
+		t->right = _removeMax(t->right);
+	return t;
+}
+
 void _remove(Tree<int>*&t, int val) {
 	if (t == nullptr)
 		return;
@@ -1079,20 +1087,23 @@ void _remove(Tree<int>*&t, int val) {
 	else if (val > t->value)
 		_remove(t->right, val);
 	else {
-		if (t->left == nullptr) {
-			Tree<int>* old = t;
-			t = old->right;
-			delete old;
+		if (t->left == nullptr && t->right == nullptr) {
+			t = nullptr;
+			return;
+			//Tree<int>* old = t;
+			//t = old->right;
+			//delete old;
 		}
-		else if (t->right == nullptr) {
-			Tree<int>* old = t;
-			t = old->left;
-			delete old;
+		else if (t->left == nullptr) {
+			t = t->right;
+			//Tree<int>* old = t;
+			//t = old->left;
+			//delete old;
 		}
 		else {
-			Tree<int>* m = _findMax(t->left);
-			t->value = m->value;
-			_remove(t->left, m->value);
+			Tree<int>* maxLeft = _findMax(t->left);
+			t->value = maxLeft->value;
+			_removeMax(t->left);
 		}
 	}
 }
@@ -1166,16 +1177,13 @@ int main()
 {
 	std::string* strTree = loadStringJson("..\\..\\..\\data\\test-9.json");
 	//for (int i = 0; i < 11; i++) {
-	//	std::cout << "N=" << i << std::endl;
-		//Tree<int>* t = strJsonToTree(loadStringJson("..\\..\\..\\data\\tree2.json"));
-		//t = deleteFromBST(t, { 2, 3, 0, 5 });
+		//std::cout << "N=" << i << std::endl;
+		Tree<int>* t = strJsonToTree(loadStringJson("..\\..\\..\\data\\tree1.json"));
 		//printTree(t);
-		//int lastValue2 = 0;
-		//checkSequenceTree(t, lastValue2);
-	//	printTree(t);
-	//	t = deleteFromBST(t, { i });
-	//	printTree(t);
-	//	std::cout << "------------------------------------------------------------------------------------------------------------------" << std::endl;
+		printTree(t);
+		t = deleteFromBST(t, { 10 });
+		printTree(t);
+		std::cout << "------------------------------------------------------------------------------------------------------------------" << std::endl;
 	//}
 
 
@@ -1257,10 +1265,9 @@ int main()
 	//}
 
 	int count = 0;
-	std::cout << countNodes(tree, count) << std::endl;
+	std::cout << "count nodes tree " << countNodes(tree, count) << std::endl;
 	count = 0;
-	std::cout << countNodes(treeCheck, count) << std::endl;
-	std::cout << std::endl << "prep tree nodes count=" << count << std::endl;
+	std::cout << "count nodes treeCheck " << countNodes(treeCheck, count) << std::endl;
 
 	
 
