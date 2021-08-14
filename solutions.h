@@ -2,6 +2,10 @@
 // or project specific include files.
 
 #pragma once
+#include "rapidjson/document.h"
+#include "rapidjson/writer.h"
+#include "rapidjson/stringbuffer.h"
+#include "json.hpp"
 
 #include <iostream>
 #include <algorithm>
@@ -19,8 +23,10 @@
 #include <filesystem>
 
 //#include <list>
+using namespace rapidjson;
+using json = nlohmann::json;
 
-
+void testTrees();
 void linkedlistImpl();
 void testArcade();
 

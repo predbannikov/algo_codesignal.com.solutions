@@ -18,6 +18,6 @@ project ("codesignal")
 
 
 # Add source to this project's executable.
-add_executable (codesignal "solutions.cpp" "solutions.h" "arrays.h" "linkedlist.h" "arcade.h" "data.cpp" "hashtables.h" "json.hpp" ) 
+add_executable (codesignal "solutions.cpp" "solutions.h" "arrays.h" "linkedlist.h" "arcade.h" "data.cpp" "hashtables.h" "json.hpp"  "trees.h") 
 
 # TODO: Add tests and install targets if needed.
