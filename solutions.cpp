@@ -192,14 +192,105 @@ std::vector<int> nextLarger(std::vector<int> a) {
 	return a;
 }
 
+/*Note: Write a solution with O(operations.length) complexity, since this is what you would be asked to do during a real interview.
+
+Implement a modified stack that, in addition to using push and pop operations, allows you to find the current minimum element in the stack by using a min operation.
+
+Example
+
+For operations = ["push 10", "min", "push 5", "min", "push 8", "min", "pop", "min", "pop", "min"], the output should be
+minimumOnStack(operations) = [10, 5, 5, 5, 10].
+
+The operations array contains 5 instances of the min operation. The results array contains 5 numbers, each representing the minimum element in the stack at the moment when min was called.*/
+
+class Stack {
+public:
+	Stack() {};
+	struct Node {
+		Node(int v) :value(v), next(nullptr) { }
+		int value;
+		Node* next;
+	};
+	Node* top = nullptr;
+	int min() { 
+		int min = top->value;
+		Node* cur = top;
+		while (cur->next != nullptr) {
+			cur = cur->next;
+			if (min > cur->value)
+				min = cur->value;
+		}
+		return min;
+	}
+	void push(int value) {
+		if (top == nullptr) {
+			top = new Node(value);
+		}
+		else {
+			Node* tmp = top;
+			top = new Node(value);
+			top->next = tmp;
+		}
+	}
+	void pop() {
+		Node* tmp = top;
+		top = top->next;
+		delete tmp;
+	}
+};
+
+std::vector<int> minimumOnStack(std::vector<std::string> operations) {
+	std::vector<int> v;
+	Stack stack;
+	for (size_t i = 0; i < operations.size(); i++) {
+		size_t idx = 0;
+		switch (operations[i][1])
+		{
+		case 'u':
+			while (idx+1 < operations[i].length() && !std::isdigit(operations[i][++idx]));
+			stack.push(std::stoi(operations[i].substr(idx, operations[i].size()-idx)));
+			break;
+		case 'i':
+			v.push_back(stack.min());
+			break;
+		case 'o':
+			stack.pop();
+			break;
+		}
+	}
+	return v;
+}
+
 
 int main()
 {
-	std::vector<int> v1{ 10, 3, 12, 4, 2, 9, 13, 0, 8, 11, 1, 7, 5, 6 };
-	std::vector v2 = nextLarger(v1);
-	for (size_t i = 0; i < v2.size(); i++) {
+	std::vector<std::string> v1{ "push 538580174",
+ "min",
+ "push 120004347",
+ "min",
+ "pop",
+ "min",
+ "pop",
+ "push 791405182",
+ "min",
+ "pop",
+ "push 336848461",
+ "min",
+ "pop",
+ "push 279001335",
+ "min",
+ "push 594354012",
+ "min" };
+	std::vector<int> v2 = minimumOnStack(v1);
+	for (size_t i = 0; i < v2.size(); i++) 
 		std::cout << v2[i] << " ";
-	}
+	
+
+	//std::vector<int> v1{ 10, 3, 12, 4, 2, 9, 13, 0, 8, 11, 1, 7, 5, 6 };
+	//std::vector v2 = nextLarger(v1);
+	//for (size_t i = 0; i < v2.size(); i++) {
+	//	std::cout << v2[i] << " ";
+	//}
 
 	//std::cout << decodeString("2[20[bc]31[xy]]xd4[rt]") << std::endl;
 
