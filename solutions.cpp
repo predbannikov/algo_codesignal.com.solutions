@@ -48,7 +48,7 @@ void goParendDir(std::string& s, size_t& idx) {
 		seqMax = 1;
 	size_t seq = 0;
 	size_t counter = 1;
-	for (;;counter++) {
+	for (;; counter++) {
 		if (s[idx] == '/') {
 			seq++;
 			if (seq == seqMax)
@@ -79,7 +79,7 @@ std::string simplifyPath(std::string path) {
 			if (i + 1 < path.length() && path.at(i + 1) == '.') {
 				goParendDir(path, i);
 			}
-			else if(i+1 < path.length() && path.at(i+1) == '/'){
+			else if (i + 1 < path.length() && path.at(i + 1) == '/') {
 				path.erase(i, 2);
 				i = i - 1;
 			}
@@ -92,9 +92,85 @@ std::string simplifyPath(std::string path) {
 	return path;
 }
 
+/*Given an encoded string, return its corresponding decoded string.
+
+The encoding rule is: k[encoded_string], where the encoded_string inside the square brackets is repeated exactly k times. Note: k is guaranteed to be a positive integer.
+
+Note that your solution should have linear complexity because this is what you will be asked during an interview.
+
+Example
+
+For s = "4[ab]", the output should be
+decodeString(s) = "abababab";
+
+For s = "2[b3[a]]", the output should be
+decodeString(s) = "baaabaaa";
+
+For s = "z1[y]zzz2[abc]", the output should be
+decodeString(s) = "zyzzzabcabc".*/
+
+void squareBracket(std::string& s, size_t& idx) {
+	int counter = 0;
+	std::string sDigit;
+	for (; idx > 0; idx--) {
+		if (std::isdigit(s[idx-1])) {
+			sDigit.insert(0, 1, s[idx-1]);
+		}
+		else
+			break;
+	}
+	s.erase(idx, sDigit.length());
+	int digit = 1;
+	if (!sDigit.empty())
+		digit = std::stoi(sDigit);
+
+	size_t mark1 = idx;
+	size_t mark2 = mark1;
+	size_t seq_squar = 0;
+	for (; mark2 < s.length(); mark2++) {
+		if (s[mark2] == ']') {
+			s.erase(mark2, 1);
+			break;
+		}
+		else if (s[mark2] == '[') {
+			seq_squar++;
+			if (seq_squar >= 2) {
+				squareBracket(s, mark2);
+				mark2--;
+				continue;
+			}
+			s.erase(mark2, 1);
+			mark2--;
+		}
+	}
+	size_t seek = mark2;
+	std::string suf = s.substr(mark1, mark2 - mark1);
+	for (size_t i = 0; i < digit - 1; i++) {
+		s.insert(seek, suf);
+		seek += mark2 - mark1;
+	}
+}
+
+std::string decodeString(std::string s) {
+	for (size_t i = 0; i < s.length(); i++) {
+		switch (s[i])
+		{
+		case '[':
+			squareBracket(s, i);
+			break;
+		default:
+			break;
+		}
+	}
+	return s;
+}
+
+
 int main()
 {
-	std::cout << simplifyPath("folder/subfolder/subsubfolder/.//../anotherfolder/file.txt");
+	std::cout << decodeString("2[20[bc]31[xy]]xd4[rt]") << std::endl;
+
+	//std::cout << simplifyPath("folder/subfolder/subsubfolder/.//../anotherfolder/file.txt");
 
 	//std::cout << kthLargestElement({ 7, 6, 5, 4, 3, 2, 1 }, 2);
 
