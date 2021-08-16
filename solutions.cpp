@@ -261,29 +261,69 @@ std::vector<int> minimumOnStack(std::vector<std::string> operations) {
 	return v;
 }
 
+/*Given a 2D grid skyMap composed of '1's (clouds) and '0's (clear sky), count the number of clouds. A cloud is surrounded by clear sky, and is formed by connecting adjacent clouds horizontally or vertically. You can assume that all four edges of the skyMap are surrounded by clear sky.
+
+Example
+
+For
+
+skyMap = [['0', '1', '1', '0', '1'],
+          ['0', '1', '1', '1', '1'],
+          ['0', '0', '0', '0', '1'],
+          ['1', '0', '0', '1', '1']]
+the output should be
+countClouds(skyMap) = 2;
+
+For
+
+skyMap = [['0', '1', '0', '0', '1'],
+          ['1', '1', '0', '0', '0'],
+          ['0', '0', '1', '0', '1'],
+          ['0', '0', '1', '1', '0'],
+          ['1', '0', '1', '1', '0']]
+the output should be
+countClouds(skyMap) = 5.*/
+
+int countClouds(std::vector<std::vector<char>> skyMap) {
+	std::stack<std::pair<int, int>> stack;
+	size_t counter = 0;
+	for (size_t i = 0; i < skyMap.size(); i++) {
+		for (size_t j = 0; j < skyMap[i].size(); j++) {
+			if (skyMap[i][j] == '1') {
+				counter++;
+				stack.push({ i,j });
+				while (!stack.empty()) {
+					auto [y, x] = stack.top();
+					stack.pop();
+					skyMap[y][x] = '0';
+					if (x + 1 < skyMap[y].size() && skyMap[y][x + 1] == '1')
+						stack.push({ y, x + 1 });
+					if (x - 1 >= 0 && skyMap[y][x - 1] == '1')
+						stack.push({ y, x - 1 });
+					if (y + 1 < skyMap.size() && skyMap[y + 1][x] == '1')
+						stack.push({ y + 1, x });
+					if (y - 1 >= 0 && skyMap[y - 1][x] == '1')
+						stack.push({ y - 1, x });
+				}
+			}
+		}
+	}
+	return counter;
+}
+
+
 
 int main()
 {
-	std::vector<std::string> v1{ "push 538580174",
- "min",
- "push 120004347",
- "min",
- "pop",
- "min",
- "pop",
- "push 791405182",
- "min",
- "pop",
- "push 336848461",
- "min",
- "pop",
- "push 279001335",
- "min",
- "push 594354012",
- "min" };
-	std::vector<int> v2 = minimumOnStack(v1);
-	for (size_t i = 0; i < v2.size(); i++) 
-		std::cout << v2[i] << " ";
+	std::cout << countClouds({ {
+'1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','0','0','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','0','0','0','0','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1'
+		} });
+
+
+	//std::vector<std::string> v1{ "push 538580174","min", "push 120004347", "min", "pop", "min", "pop", "push 791405182", "min", "pop", "push 336848461", "min", "pop", "push 279001335", "min", "push 594354012", "min" };
+	//std::vector<int> v2 = minimumOnStack(v1);
+	//for (size_t i = 0; i < v2.size(); i++) 
+	//	std::cout << v2[i] << " ";
 	
 
 	//std::vector<int> v1{ 10, 3, 12, 4, 2, 9, 13, 0, 8, 11, 1, 7, 5, 6 };
