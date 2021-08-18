@@ -10,6 +10,50 @@
 
 
 
+void prepMaxHeapArr(Tree<int>* h, std::vector<int>& a) {
+	for (size_t i = a.size() / 2; i >= 1; i--) {
+		int val = a[i - 1];
+		int k = i;
+		bool h = false;
+		while (!h && k * 2 - 1 < a.size()) {
+			int j = k * 2;
+			if (j + 1 < a.size()) {		//  + 1 это правое значение
+				if (a[j - 1] < a[j - 1 + 1])		// -1 для предыдущего индекса (индексация с нуля) 
+					j = j + 1;
+			}
+			if (val > a[j - 1])
+				h = true;
+			else {
+				a[k - 1] = a[j - 1];
+				k = j;
+			}
+		}
+		a[k - 1] = val;
+	}
+}
+
+void prepMinHeapArr(Tree<int>* h, std::vector<int>& a) {
+	for (size_t i = a.size() / 2; i >= 1; i--) {
+		int val = a[i - 1];
+		int k = i;
+		bool h = false;
+		while (!h && k * 2 - 1 < a.size()) {
+			int j = k * 2;
+			if (j + 1 < a.size()) {		//  + 1 это правое значение
+				if (a[j - 1] > a[j - 1 + 1])		// -1 для предыдущего индекса (индексация с нуля) 
+					j = j + 1;
+			}
+			if (val < a[j - 1])
+				h = true;
+			else {
+				a[k - 1] = a[j - 1];
+				k = j;
+			}
+		}
+		a[k - 1] = val;
+	}
+}
+
 int kthLargestElement(std::vector<int> nums, int k) {
 	for (int i = 0; i < nums.size(); i++) {
 		for (int j = 0; j < nums.size() - 1; j++) {
@@ -212,7 +256,7 @@ public:
 		Node* next;
 	};
 	Node* top = nullptr;
-	int min() { 
+	int min() {
 		int min = top->value;
 		Node* cur = top;
 		while (cur->next != nullptr) {
@@ -247,8 +291,8 @@ std::vector<int> minimumOnStack(std::vector<std::string> operations) {
 		switch (operations[i][1])
 		{
 		case 'u':
-			while (idx+1 < operations[i].length() && !std::isdigit(operations[i][++idx]));
-			stack.push(std::stoi(operations[i].substr(idx, operations[i].size()-idx)));
+			while (idx + 1 < operations[i].length() && !std::isdigit(operations[i][++idx]));
+			stack.push(std::stoi(operations[i].substr(idx, operations[i].size() - idx)));
 			break;
 		case 'i':
 			v.push_back(stack.min());
@@ -268,19 +312,19 @@ Example
 For
 
 skyMap = [['0', '1', '1', '0', '1'],
-          ['0', '1', '1', '1', '1'],
-          ['0', '0', '0', '0', '1'],
-          ['1', '0', '0', '1', '1']]
+		  ['0', '1', '1', '1', '1'],
+		  ['0', '0', '0', '0', '1'],
+		  ['1', '0', '0', '1', '1']]
 the output should be
 countClouds(skyMap) = 2;
 
 For
 
 skyMap = [['0', '1', '0', '0', '1'],
-          ['1', '1', '0', '0', '0'],
-          ['0', '0', '1', '0', '1'],
-          ['0', '0', '1', '1', '0'],
-          ['1', '0', '1', '1', '0']]
+		  ['1', '1', '0', '0', '0'],
+		  ['0', '0', '1', '0', '1'],
+		  ['0', '0', '1', '1', '0'],
+		  ['1', '0', '1', '1', '0']]
 the output should be
 countClouds(skyMap) = 5.*/
 
@@ -311,37 +355,98 @@ int countClouds(std::vector<std::vector<char>> skyMap) {
 	return counter;
 }
 
+/*Given an array of integers a, return a new array b using the following guidelines:
 
+For each index i in b, the value of bi is the index of the aj nearest to ai and is also greater than ai.
+If there are two options for bi, put the leftmost one in bi.
+If there are no options for bi, put -1 in bi.
+Example
+
+For a = [1, 4, 2, 1, 7, 6], the output should be
+nearestGreater(a) = [1, 4, 1, 2, -1, 4].
+
+for a[0], the nearest larger element is 4 at index a[1] -> b[0] contains the value 1.
+for a[1], the nearest larger element is 7 at a[4] -> b[1] contains the value 4.
+for a[2], the nearest larger element is 4 at a[1] (7 is also larger, but 4 has the minimal position) -> b[2] contains the value 1.
+for a[3], the nearest larger element is 2 at a[2] (7 is also larger, but 2 has the minimal position) -> b[3] contains the value 2.
+for a[4], there is no element larger than 7 -> b[4] contains the value -1.
+for a[5], the nearest larger element is 7 at a[4] -> b[5] contains the value 4.*/
+
+std::vector<int> nearestGreater(std::vector<int> a) {
+	std::vector<int> b(a.size());
+	for (int i = 0; i < a.size(); i++) {
+		bool check = false;
+		int cnt = 1;
+		bool lastCheck = true;
+		while (!check) {
+			if (i - cnt >= 0 && a[i - cnt] > a[i]) {
+				b[i] = i - cnt;
+				check = true;
+			}
+			else if (i + cnt < a.size() && a[i + cnt] > a[i]) {
+				b[i] = i + cnt;
+				check = true;
+			}
+			else if (i + cnt >= a.size() && i - cnt < 0) {
+				b[i] = -1;
+				break;
+			}
+			if (lastCheck && i - 1 >= 0) {
+				if (a[i] >= a[i - 1]) {
+					int lastIdx = b[i - 1];
+					int diff = 0;
+					if (lastIdx > i - 1) {
+						diff = lastIdx - i - 1;
+					}
+					else {
+						diff = i - 1 - lastIdx;
+					}
+					if (diff > 2)
+						cnt = diff-1;
+				}
+				lastCheck = false;
+			}
+			cnt++;
+		}
+	}
+	return b;
+}
 
 int main()
 {
-	std::cout << countClouds({ {
-'1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','0','0','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','0','0','0','0','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1'
-		} });
+	std::vector<int> v1{ 58, 477, 371, 149, 185, 8, 66, 325, 325, 378, 341, 450, 92, 143, 398, 480, 96, 451, 310, 246, 129, 77, 260, 491, 30, 142, 286, 401, 382, 364, 475, 496, 370, 334, 114, 276, 253, 407, 76, 106, 55, 48, 198, 295, 400, 89, 414, 168, 417, 172 };
+	std::vector<int> v2 = nearestGreater(v1);
+	for (size_t i = 0; i < v2.size(); i++) {
+		std::cout << v2[i] << " ";
+	}
+
+	//	std::cout << countClouds({ {
+	//'1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','0','0','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','0','0','0','0','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1'
+	//		} });
+	//
+
+		//std::vector<std::string> v1{ "push 538580174","min", "push 120004347", "min", "pop", "min", "pop", "push 791405182", "min", "pop", "push 336848461", "min", "pop", "push 279001335", "min", "push 594354012", "min" };
+		//std::vector<int> v2 = minimumOnStack(v1);
+		//for (size_t i = 0; i < v2.size(); i++) 
+		//	std::cout << v2[i] << " ";
 
 
-	//std::vector<std::string> v1{ "push 538580174","min", "push 120004347", "min", "pop", "min", "pop", "push 791405182", "min", "pop", "push 336848461", "min", "pop", "push 279001335", "min", "push 594354012", "min" };
-	//std::vector<int> v2 = minimumOnStack(v1);
-	//for (size_t i = 0; i < v2.size(); i++) 
-	//	std::cout << v2[i] << " ";
-	
+		//std::vector<int> v1{ 10, 3, 12, 4, 2, 9, 13, 0, 8, 11, 1, 7, 5, 6 };
+		//std::vector v2 = nextLarger(v1);
+		//for (size_t i = 0; i < v2.size(); i++) {
+		//	std::cout << v2[i] << " ";
+		//}
 
-	//std::vector<int> v1{ 10, 3, 12, 4, 2, 9, 13, 0, 8, 11, 1, 7, 5, 6 };
-	//std::vector v2 = nextLarger(v1);
-	//for (size_t i = 0; i < v2.size(); i++) {
-	//	std::cout << v2[i] << " ";
-	//}
+		//std::cout << decodeString("2[20[bc]31[xy]]xd4[rt]") << std::endl;
 
-	//std::cout << decodeString("2[20[bc]31[xy]]xd4[rt]") << std::endl;
+		//std::cout << simplifyPath("folder/subfolder/subsubfolder/.//../anotherfolder/file.txt");
 
-	//std::cout << simplifyPath("folder/subfolder/subsubfolder/.//../anotherfolder/file.txt");
+		//std::cout << kthLargestElement({ 7, 6, 5, 4, 3, 2, 1 }, 2);
 
-	//std::cout << kthLargestElement({ 7, 6, 5, 4, 3, 2, 1 }, 2);
-
-	//testTrees();
-	//hashtables();
-	//testArcade();
-	//linkedlistImpl();
+		//testTrees();
+		//hashtables();
+		//testArcade();
+		//linkedlistImpl();
 	return 0;
 }
 

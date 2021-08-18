@@ -11,6 +11,26 @@ struct Tree {
 	Tree* right;
 };
 
+void createHeap(Tree<int>*& heap, std::vector<int>& a) {
+	int index = 0;
+	std::queue<Tree<int>*> queue;
+	queue.push(heap);
+	while (!queue.empty()) {
+		Tree<int>* h = queue.front();
+		queue.pop();
+		index++;
+		if (index < a.size()) {
+			h->left = new Tree<int>(a[index]);
+			queue.push(h->left);
+		}
+		index++;
+		if (index < a.size()) {
+			h->right = new Tree<int>(a[index]);
+			queue.push(h->right);
+		}
+	}
+}
+
 void heightTree(Tree<int>* tree, int lvl, int& max) {
 	if (max < lvl)
 		max = lvl;
