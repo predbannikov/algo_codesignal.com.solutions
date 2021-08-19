@@ -81,9 +81,9 @@ bool almostIncreasingSequence(std::vector<int> sequence) {
 			check = false;
 		else
 			return false;
-	if(sequence.size() > 3)
-		for (int i = 0; i < sequence.size()-2; i++) {
- 			if (sequence[i+1] >= sequence[i+2]) {
+	if (sequence.size() > 3)
+		for (int i = 0; i < sequence.size() - 2; i++) {
+			if (sequence[i + 1] >= sequence[i + 2]) {
 				if (check) {
 					check = false;
 					if (sequence.size() > i + 3 && sequence[i + 1] < sequence[i + 3])
@@ -93,7 +93,7 @@ bool almostIncreasingSequence(std::vector<int> sequence) {
 					if (sequence[i] < sequence[i + 1]) {
 						std::swap(sequence[i], sequence[i + 1]);
 					}
- 				}
+				}
 				else {
 					return false;
 				}
@@ -101,7 +101,7 @@ bool almostIncreasingSequence(std::vector<int> sequence) {
 			if (sequence[i + 1] >= sequence[i + 2])
 				return false;
 		}
-	return true; 
+	return true;
 }
 
 int matrixElementsSum(std::vector<std::vector<int>> matrix) {
@@ -155,7 +155,7 @@ bool isLucky(int n) {
 	int sum1 = 0;
 	int sum2 = 0;
 	while (it != list.end()) {
-		if (counter < list.size()/2) {
+		if (counter < list.size() / 2) {
 			sum1 += *it;
 		}
 		else {
@@ -169,17 +169,43 @@ bool isLucky(int n) {
 	return false;
 }
 
+/*Some people are standing in a row in a park. There are trees between them which cannot be moved. Your task is to rearrange the people by their heights in a non-descending order without moving the trees. People can be very tall!
 
- 
+Example
+
+For a = [-1, 150, 190, 170, -1, -1, 160, 180], the output should be
+sortByHeight(a) = [-1, 150, 160, 170, -1, -1, 180, 190].*/
+std::vector<int> sortByHeight(std::vector<int> a) {
+	std::vector<int> t(a.size());
+	auto it_a = std::copy_if(a.begin(), a.end(), t.begin(), [](const int& v) { return v != -1; });
+	t.resize(std::distance(t.begin(), it_a));
+	std::sort(t.begin(), t.end());
+	auto it_b = t.begin();
+	for (auto& item : a) {
+		if (item != -1) {
+			item = *it_b;
+			it_b++;
+		}
+	}
+	return a;
+}
+
+
 void testArcade() {
-	std::cout << std::boolalpha << isLucky(1230);
+
+	std::vector<int> a = { -1, 150, 190, 170, -1, -1, 160, 180 };
+	std::vector<int> b = sortByHeight(a);
+	std::copy(b.begin(), b.end(), std::ostream_iterator<int>(std::cout, " "));
+
+	//std::cout << std::boolalpha << isLucky(1230);
+
 	//std::cout << commonCharacterCount("aabcc", "adcaa");
 	//std::vector<std::string> strs = allLongestStrings({ "abacaba",
 	// "abacab",
 	// "abac",
 	// "xxxxxx" });
 	//std::copy(strs.begin(), strs.end(), std::ostream_iterator<std::string>(std::cout, " "));
-	
+
 	//std::cout << matrixElementsSum({
 	//	{4,0,1} ,
  //{10,7,0},
