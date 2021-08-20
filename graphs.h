@@ -27,22 +27,21 @@ This graph doesn't contain a directed cycle (there are two paths from 0 to 3, bu
 //	set.insert()
 //}
 
-bool checkCycle(std::set<int>& set, std::map<int, std::vector<int>>::iterator& it_m, std::map<int, std::vector<int>>::iterator& it_mEnd, std::vector<int>::iterator& it_v, std::vector<int>::iterator& it_vEnd) {
-	if (it_v == it_vEnd) {
-		if (it_m != it_mEnd) {
-			it_m++;
-			return checkCycle(set, it_m, it_mEnd, it_m->second.begin(), it_m->second.end());
-		}
-		else
-			return false;
+bool checkCycle(std::map<int, std::vector<int>>& map, std::set<int> &set, int val, int key) {
+
+	for (size_t i = 0; i < map[val].size(); i++) {
+		int value = map[val][i];
+		if (set.find(value) != set.end())
+			return true;
+		set.insert(value);
+		if (checkCycle(map, set, value, key))
+			return true;
+		else 
+			set.erase(value);
+		
+
 	}
-	if (set.find(*(it_v)) == set.end()) {
-		set.insert(*it_v);
-		it_v++;
-		return checkCycle(set, it_m, it_mEnd, it_v, it_vEnd);
-	}
-	else
-		return true;
+	return false;
 }
 
 bool hasDeadlock(std::vector<std::vector<int>> connections) {
@@ -51,18 +50,18 @@ bool hasDeadlock(std::vector<std::vector<int>> connections) {
 		map[i] = connections[i];
 
 	for (auto it_m = map.begin(); it_m != map.end(); it_m++) {
-		auto it_mEnd = map.end();
-		auto it_v = it_m->second.begin();
-		auto it_vEnd = it_m->second.end();
-		std::set<int> set({ 0 });
-		if (checkCycle(set, it_m, it_mEnd, it_v, it_vEnd))
+		std::set<int> set({ it_m->first });
+		if (checkCycle(map, set, it_m->first, it_m->first))
 			return true;
 	}
-	//return false;
+	return false;
 }
 
+
 void testGraphs() {
-	std::cout << std::boolalpha << hasDeadlock(
-		{ {1} ,{2},{3, 4},{4},{0} }
-	);
+
+
+	std::vector<std::vector<int>> v1 = { {1,2,3} , {2,3}, {3}, {} };
+	std::cout << std::boolalpha << hasDeadlock(v1);
+
 }

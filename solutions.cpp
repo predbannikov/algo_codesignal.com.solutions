@@ -13,12 +13,12 @@
 
 int main()
 {
-	//testGraphs();
+	testGraphs();
 	//testHeaps();
 	//testTrees();
 	//hashtables();
 	//linkedlistImpl();
-	testArcade();
+	//testArcade();
 	return 0;
 }
 
