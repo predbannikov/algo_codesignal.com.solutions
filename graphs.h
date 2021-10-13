@@ -23,10 +23,6 @@ hasDeadlock(connections) = false.
 
 This graph doesn't contain a directed cycle (there are two paths from 0 to 3, but no paths from 3 back to 0).*/
 
-//void dfs(std::set<int>& set, std::map<int, std::vector<int>>::iterator& it_m, std::map<int, std::vector<int>>::iterator& it_mEnd, std::vector<int>::iterator& it_v, std::vector<int>::iterator& it_vEnd) {
-//	set.insert()
-//}
-
 bool checkCycle(std::map<int, std::vector<int>>& map, std::set<int>& set, int val, int key) {
 
 	for (size_t i = 0; i < map[val].size(); i++) {
